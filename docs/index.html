@@ -187,7 +187,10 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 .sugg button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:.84rem}
 .ai-foot{border-top:1px solid var(--line);padding:10px 12px;display:grid;gap:6px}
 .ai-form{display:flex;gap:8px}
-.ai-form textarea{flex:1;min-width:0;resize:none;height:48px;line-height:1.4;scrollbar-width:none;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
+.ai-form{align-items:flex-end}
+.ai-form button{height:48px}
+.m.u{white-space:pre-wrap}
+.ai-form textarea{flex:1;min-width:0;resize:none;height:48px;max-height:150px;line-height:1.4;scrollbar-width:thin;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
 .ai-form textarea:focus{outline:none;border-color:var(--navy-2)}
 .ai-form button{border:0;border-radius:12px;padding:0 16px;font-weight:700;background:var(--navy);color:var(--on-navy)}
 .ai-note{font-size:.74rem;color:var(--muted)}
@@ -248,7 +251,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
   <div class="msgs" id="msgs"></div>
   <div class="ai-foot">
     <form class="ai-form" id="ai-form">
-      <textarea id="ai-in" placeholder="Escribe tu pregunta…" aria-label="Tu pregunta"></textarea>
+      <textarea id="ai-in" maxlength="2500" placeholder="Escribe tu pregunta o cuenta lo que te pasó…" aria-label="Tu pregunta"></textarea>
       <button type="submit" id="ai-send">Enviar</button>
     </form>
     <p class="ai-note" id="ai-note">Responde con el reglamento del colegio. Es orientativo: para algo formal, consulta a un abogado.</p>
@@ -622,7 +625,7 @@ function localAnswer(q){
 async function ask(q){
   q = q.trim(); if (!q || busy) return;
   $("#msgs").querySelector(".sugg")?.remove();
-  addMsg("u", esc(q)); $("#ai-in").value = "";
+  addMsg("u", esc(q)); $("#ai-in").value = ""; grow();
   if (aiMode === "local"){ addMsg("a", localAnswer(q)); return; }
   if (aiMode === "server") return askServer(q);
   busy = true; ctl = new AbortController();
@@ -725,6 +728,9 @@ $("#fab").addEventListener("click", () => { $("#ai").hidden = false; $("#fab").h
 $("#ai-close").addEventListener("click", () => { $("#ai").hidden = true; $("#fab").hidden = false; });
 $("#ai-form").addEventListener("submit", e => { e.preventDefault(); ask($("#ai-in").value); });
 $("#ai-send").addEventListener("click", e => { if (busy){ e.preventDefault(); ctl?.abort(); } });
+// la caja crece mientras escribes (hasta ~6 líneas)
+function grow(){ const t = $("#ai-in"); t.style.height = "48px"; if (t.value) t.style.height = Math.min(t.scrollHeight + 3, 150) + "px"; }
+$("#ai-in").addEventListener("input", grow);
 $("#ai-in").addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask($("#ai-in").value); } });
 
 try { const s = localStorage.getItem("csb-sexo"); if (s) setSex(s); } catch(e){}

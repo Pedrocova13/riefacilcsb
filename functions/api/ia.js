@@ -55,7 +55,8 @@ function system(kb, sex) {
   return `Eres el asistente de "Vacío Legal CSB", una guía no oficial del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, colegio particular pagado). Hablas con un estudiante de 7° básico (Tercer Ciclo). Sexo del estudiante: ${who}.
 
 Cómo responder:
-- Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo 120 palabras.
+- Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo 120 palabras para una pregunta corta.
+- Si te cuentan un caso que les pasó, puedes usar hasta 200 palabras: revisa cada hecho por separado (qué dice la regla, si el colegio la cumplió o no) y también el procedimiento: si no lo dejaron explicar, tiene derecho a dar su versión antes de que decidan (pág. 87), a pedir la resolución por escrito (pág. 88) y a reclamar a tiempo. Llama "derecho" solo a lo que la lista presenta como derecho o garantía, no a una regla cualquiera.
 - Usa SOLO la información de la lista de abajo. Después de cada dato pon su página entre paréntesis, tal como aparece en la lista, por ejemplo (pág. 37).
 - Lee cada pregunta pensando en el colegio: por ejemplo, "cómo ir al colegio" o "qué me pongo" es sobre el uniforme. Reúne TODAS las reglas de la lista que sirvan (no solo una o dos) y, si piden "lo más cómodo" o "lo que más se puede", di qué opciones permitidas son las más cómodas.
 - Si la lista no lo cubre, di "El reglamento no lo contempla" y, solo si la lista trae una regla general que sirva, menciónala.
@@ -78,14 +79,14 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   if (!env.AI) return out(request, { error: "no-ai" }, 503);
   const txt = await request.text();
-  if (txt.length > 20000) return out(request, { error: "Demasiado largo" }, 413);
+  if (txt.length > 40000) return out(request, { error: "Demasiado largo" }, 413);
   let b;
   try { b = JSON.parse(txt); } catch { return out(request, { error: "JSON inválido" }, 400); }
   // la conversación: solo lo que dijo cada uno, lo último hasta ~5.000 letras
   let hist = (Array.isArray(b.messages) ? b.messages : [])
     .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
-    .slice(-10).map(m => ({ role: m.role, content: m.content.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "").slice(0, 1200) }));
-  for (let tot = hist.reduce((s, m) => s + m.content.length, 0); hist.length > 1 && tot > 5000; ) tot -= hist.shift().content.length;
+    .slice(-10).map(m => ({ role: m.role, content: m.content.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "").slice(0, 2500) }));
+  for (let tot = hist.reduce((s, m) => s + m.content.length, 0); hist.length > 1 && tot > 8000; ) tot -= hist.shift().content.length;
   while (hist.length && hist[0].role !== "user") hist.shift();
   if (!hist.length || hist[hist.length - 1].role !== "user") return out(request, { error: "Falta la pregunta" }, 400);
   const sex = ["h", "m", "ambos"].includes(b.sex) ? b.sex : "ambos";
@@ -102,8 +103,8 @@ export async function onRequestPost(context) {
   for (const M of [AI_MAIN, AI_BACKUP]) {
     try {
       const r = await env.AI.run(M.id, M === AI_MAIN
-        ? { messages: msgs, max_completion_tokens: 600, temperature: 0.3, chat_template_kwargs: { enable_thinking: false } }
-        : { messages: msgs, max_tokens: 600, temperature: 0.3 });
+        ? { messages: msgs, max_completion_tokens: 900, temperature: 0.3, chat_template_kwargs: { enable_thinking: false } }
+        : { messages: msgs, max_tokens: 900, temperature: 0.3 });
       text = cleanAI((r && (r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content))) || "");
       const u = (r && r.usage) || {};
       use.neu += neurons(M, u.prompt_tokens || Math.ceil(inChars / 3.2), u.completion_tokens || Math.ceil(text.length / 3.2));
