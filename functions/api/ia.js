@@ -4,7 +4,7 @@
 // esta guía se pone un tope propio bajo para no comérselas.
 const AI_MAIN = { id: "@cf/google/gemma-4-26b-a4b-it", inM: 9091, outM: 27273 };   // neuronas por millón de tokens
 const AI_BACKUP = { id: "@cf/meta/llama-4-scout-17b-16e-instruct", inM: 24545, outM: 77273 };
-const CAP = { day: 1500, ipDay: 20, ipMin: 5 }; // neuronas al día para esta guía · preguntas por conexión al día y por minuto
+const CAP = { day: 1500, ipDay: 20, ipMin: 5, ipImg: 6 }; // neuronas al día para esta guía · preguntas por conexión al día y por minuto · fotos por conexión al día
 const ORIGINS = ["https://pedrocova13.github.io"]; // la copia de GitHub Pages también puede preguntar
 const TABS = { uniforme: "Uniforme", celular: "Celular e IA", faltas: "Faltas", sanciones: "Sanciones", reclamar: "Si te sancionan", derechos: "Derechos" };
 const GRAV = { leve: "Leve", mod: "Moderada", grave: "Grave", mgrave: "Muy grave" };
@@ -19,15 +19,16 @@ const out = (request, data, status = 200) => new Response(JSON.stringify(data), 
 // Topes: se cuentan en la memoria del servidor (es aproximado: Cloudflare puede tener varias copias corriendo).
 let use = { day: "", neu: 0, ip: new Map() };
 function today() { return new Date().toISOString().slice(0, 10); }
-function check(ip) {
+function check(ip, img) {
   const d = today();
   if (use.day !== d) use = { day: d, neu: 0, ip: new Map() };
   if (use.neu >= CAP.day) return "limit";
-  const now = Date.now(), r = use.ip.get(ip) || { n: 0, recent: [] };
+  const now = Date.now(), r = use.ip.get(ip) || { n: 0, img: 0, recent: [] };
   r.recent = r.recent.filter(t => now - t < 60000);
   if (r.n >= CAP.ipDay) return "limit";
+  if (img && r.img >= CAP.ipImg) return "limit-img";
   if (r.recent.length >= CAP.ipMin) return "rate";
-  r.n++; r.recent.push(now); use.ip.set(ip, r);
+  r.n++; if (img) r.img++; r.recent.push(now); use.ip.set(ip, r);
   return null;
 }
 
@@ -63,6 +64,7 @@ Cómo responder:
 - Si hay dos lecturas posibles, muestra ambas (la del colegio y la que te favorece).
 - Si algo tiene riesgo real de sanción, dilo claro. Si la situación es grave (amenazas, abuso, expulsión), recomienda hablar con un adulto de confianza o un abogado.
 - No inventes normas, plazos ni páginas. Usa viñetas con "- " cuando ayuden y **negrita** solo para lo clave. Sin títulos ni tablas.
+- Si te mandan una foto preguntando si algo se puede: di en corto qué ves que importe para el reglamento (ropa, uniforme, zapatos, pelo, aros, piercings, un celular, etc.) y si eso se permite según la lista, con su página. Si no se ve bien o no se puede saber desde una foto (por ejemplo, el largo exacto del jumper o si un color es "llamativo"), dilo. Lo que se ve en una foto es aproximado: dilo. Habla solo de lo que pide la regla: no comentes el cuerpo, la cara ni el aspecto de la persona, y no intentes saber quién es. Si la foto no tiene que ver con el colegio, dilo.
 - Solo hablas del reglamento y de tus derechos en el colegio. Si preguntan otra cosa, di con buena onda que solo hablas de eso.
 - Termina siempre con: "Esto es orientativo; para algo formal, consulta a un abogado."
 
@@ -79,7 +81,7 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   if (!env.AI) return out(request, { error: "no-ai" }, 503);
   const txt = await request.text();
-  if (txt.length > 40000) return out(request, { error: "Demasiado largo" }, 413);
+  if (txt.length > 2500000) return out(request, { error: "Demasiado grande" }, 413);
   let b;
   try { b = JSON.parse(txt); } catch { return out(request, { error: "JSON inválido" }, 400); }
   // la conversación: solo lo que dijo cada uno, lo último hasta ~5.000 letras
@@ -90,15 +92,20 @@ export async function onRequestPost(context) {
   while (hist.length && hist[0].role !== "user") hist.shift();
   if (!hist.length || hist[hist.length - 1].role !== "user") return out(request, { error: "Falta la pregunta" }, 400);
   const sex = ["h", "m", "ambos"].includes(b.sex) ? b.sex : "ambos";
+  // la foto (opcional) va con la última pregunta; no se guarda en ningún lado
+  const img = typeof b.image === "string" && b.image.length < 2000000 && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(b.image) ? b.image : null;
+  if (b.image && !img) return out(request, { error: "foto" }, 400);
 
-  const stop = check(request.headers.get("cf-connecting-ip") || "?");
+  const stop = check(request.headers.get("cf-connecting-ip") || "?", !!img);
   if (stop) return out(request, { error: stop }, 429);
 
   let kb;
   try { kb = await loadKB(context); } catch { return out(request, { error: "sin-datos" }, 500); }
   const sys = system(kb, sex);
-  const msgs = [{ role: "system", content: sys }, ...hist];
-  const inChars = sys.length + hist.reduce((s, m) => s + m.content.length, 0);
+  const last = hist[hist.length - 1];
+  const msgs = [{ role: "system", content: sys }, ...hist.slice(0, -1),
+    img ? { role: "user", content: [{ type: "text", text: last.content }, { type: "image_url", image_url: { url: img } }] } : last];
+  const inChars = sys.length + hist.reduce((s, m) => s + m.content.length, 0) + (img ? 3500 : 0); // ~1.100 tokens la foto
   let text = "";
   for (const M of [AI_MAIN, AI_BACKUP]) {
     try {

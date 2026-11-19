@@ -190,6 +190,11 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 .ai-form{align-items:flex-end}
 .ai-form button{height:48px}
 .m.u{white-space:pre-wrap}
+.ai-form .ph{flex:none;width:48px;padding:0;display:grid;place-items:center;background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
+.ai-prev{position:relative;justify-self:start}
+.ai-prev img{display:block;height:72px;max-width:140px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.ai-prev button{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border:0;border-radius:50%;background:var(--ink);color:var(--bg);font-size:1rem;line-height:1;padding:0}
+.m .u-img{display:block;max-width:180px;max-height:200px;border-radius:10px;margin-bottom:6px}
 .ai-form textarea{flex:1;min-width:0;resize:none;height:48px;max-height:150px;line-height:1.4;scrollbar-width:thin;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
 .ai-form textarea:focus{outline:none;border-color:var(--navy-2)}
 .ai-form button{border:0;border-radius:12px;padding:0 16px;font-weight:700;background:var(--navy);color:var(--on-navy)}
@@ -250,7 +255,10 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
   <div class="ai-head"><b>Asistente</b><span class="mode" id="mode">Conectando…</span><button class="x" id="ai-close" aria-label="Cerrar">×</button></div>
   <div class="msgs" id="msgs"></div>
   <div class="ai-foot">
+    <div class="ai-prev" id="ai-prev" hidden><img id="ai-prev-img" alt="Foto que vas a mandar"><button type="button" id="ai-prev-x" aria-label="Quitar la foto">×</button></div>
     <form class="ai-form" id="ai-form">
+      <button type="button" class="ph" id="ai-photo" aria-label="Mandar una foto" title="Mandar una foto" hidden><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+      <input type="file" id="ai-file" accept="image/*" hidden>
       <textarea id="ai-in" maxlength="2500" placeholder="Escribe tu pregunta o cuenta lo que te pasó…" aria-label="Tu pregunta"></textarea>
       <button type="submit" id="ai-send">Enviar</button>
     </form>
@@ -608,7 +616,9 @@ function addMsg(role, html, cls=""){
 }
 function welcome(){
   $("#msgs").innerHTML = "";
-  addMsg("a", aiMode!=="local"
+  addMsg("a", aiMode==="server"
+    ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento o cuéntame lo que te pasó, y te respondo con la página exacta.</p><p>También puedes mandarme una <b>foto</b> (tus zapatillas, tu corte, un aro…) con el botón de la cámara y te digo si se puede. La foto no se guarda.</p>"
+    : aiMode==="claude"
     ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento y te respondo con la página exacta.</p>"
     : "<p>Hola. Ahora respondo <b>buscando en el reglamento</b>, sin IA. La IA completa está en <b>vaciolegalcsb.pages.dev</b>.</p>");
   const s = document.createElement("div"); s.className = "sugg";
@@ -623,11 +633,15 @@ function localAnswer(q){
   return "<p>Esto es lo que dice el reglamento:</p><ul>" + r.map(e => `<li><b>${esc(e.title)}:</b> ${esc(e.text)} ${pgTag(e.pg)}</li>`).join("") + "</ul><p>Esto es orientativo; para algo formal, consulta a un abogado.</p>";
 }
 async function ask(q){
-  q = q.trim(); if (!q || busy) return;
+  q = q.trim();
+  const img = aiMode === "server" ? photo : null;
+  if (busy || (!q && !img)) return;
+  if (!q) q = "¿Esto se puede según el reglamento?";
+  clearPhoto();
   $("#msgs").querySelector(".sugg")?.remove();
-  addMsg("u", esc(q)); $("#ai-in").value = ""; grow();
+  addMsg("u", (img ? `<img class="u-img" src="${img}" alt="Tu foto">` : "") + esc(q)); $("#ai-in").value = ""; grow();
   if (aiMode === "local"){ addMsg("a", localAnswer(q)); return; }
-  if (aiMode === "server") return askServer(q);
+  if (aiMode === "server") return askServer(q, img);
   busy = true; ctl = new AbortController();
   $("#ai-send").textContent = "Detener"; $("#ai-send").type = "button";
   const bubble = addMsg("a", "Pensando…", "think");
@@ -658,23 +672,39 @@ async function ask(q){
 // Servidor de IA en Cloudflare: en vaciolegalcsb.pages.dev es la misma página; desde GitHub Pages se llama al de Cloudflare.
 const API = /\.pages\.dev$/.test(location.hostname) || location.hostname === "localhost" ? "/api/ia"
   : /\.github\.io$/.test(location.hostname) ? "https://vaciolegalcsb.pages.dev/api/ia" : null;
-async function askServer(q){
+// Fotos: se achican en el teléfono (máx. 1024 px, JPG) antes de mandarlas. No se guardan.
+let photo = null;
+function clearPhoto(){ photo = null; $("#ai-prev").hidden = true; $("#ai-prev-img").removeAttribute("src"); $("#ai-file").value = ""; }
+async function pickPhoto(file){
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  try {
+    const im = new Image(); im.src = url; await im.decode();
+    const s = Math.min(1, 1024 / Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement("canvas"); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    photo = c.toDataURL("image/jpeg", 0.82);
+    $("#ai-prev-img").src = photo; $("#ai-prev").hidden = false; $("#ai-in").focus();
+  } catch(e){ clearPhoto(); addMsg("a", "<p>No pude abrir esa foto. Prueba con otra (JPG o PNG).</p>"); }
+  finally { URL.revokeObjectURL(url); }
+}
+async function askServer(q, img){
   busy = true; ctl = new AbortController();
   $("#ai-send").textContent = "Detener"; $("#ai-send").type = "button";
-  const bubble = addMsg("a", "Pensando…", "think");
-  turns.push({role:"user", content:q});
+  const bubble = addMsg("a", img ? "Mirando la foto…" : "Pensando…", "think");
+  turns.push({role:"user", content: img ? q + " [mandé una foto]" : q});
   if (turns.length > 10) turns = turns.slice(-10);
   while (turns.length && turns[0].role !== "user") turns.shift();
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; ctl.abort(); }, 45000);
   try {
-    const r = await fetch(API, {method:"POST", headers:{"content-type":"application/json"}, signal:ctl.signal, body:JSON.stringify({messages:turns, sex})});
+    const r = await fetch(API, {method:"POST", headers:{"content-type":"application/json"}, signal:ctl.signal, body:JSON.stringify(img ? {messages:turns, sex, image:img} : {messages:turns, sex})});
     const d = await r.json().catch(() => ({}));
     bubble.classList.remove("think");
     if (r.ok && d.text){ bubble.innerHTML = md(d.text); turns.push({role:"assistant", content:d.text}); }
     else {
       turns.pop();
-      const why = d.error==="limit" ? "Se acabaron las preguntas a la IA por hoy." : d.error==="rate" ? "Hiciste muchas preguntas seguidas; espera un minuto." : "La IA no respondió.";
+      const why = d.error==="limit-img" ? "Ya mandaste muchas fotos hoy; mañana puedes mandar más." : d.error==="foto" ? "Esa foto no sirve; prueba con otra (JPG o PNG)." : d.error==="limit" ? "Se acabaron las preguntas a la IA por hoy." : d.error==="rate" ? "Hiciste muchas preguntas seguidas; espera un minuto." : "La IA no respondió.";
       bubble.innerHTML = `<p>${why} Mientras, te respondo buscando en el reglamento:</p>` + localAnswer(q);
     }
   } catch(e){
@@ -686,6 +716,8 @@ async function askServer(q){
   }
 }
 function setMode(){
+  $("#ai-photo").hidden = aiMode !== "server";
+  if (aiMode !== "server") clearPhoto();
   $("#mode").textContent = aiMode==="claude" ? "IA de Claude" : aiMode==="server" ? "IA" : "Modo búsqueda";
   $("#ai-note").textContent = aiMode==="claude"
     ? "Usa tu cuenta de Claude. Responde con el reglamento del colegio y es orientativa: para algo formal, consulta a un abogado."
@@ -731,6 +763,9 @@ $("#ai-send").addEventListener("click", e => { if (busy){ e.preventDefault(); ct
 // la caja crece mientras escribes (hasta ~6 líneas)
 function grow(){ const t = $("#ai-in"); t.style.height = "48px"; if (t.value) t.style.height = Math.min(t.scrollHeight + 3, 150) + "px"; }
 $("#ai-in").addEventListener("input", grow);
+$("#ai-photo").addEventListener("click", () => $("#ai-file").click());
+$("#ai-file").addEventListener("change", e => pickPhoto(e.target.files[0]));
+$("#ai-prev-x").addEventListener("click", clearPhoto);
 $("#ai-in").addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask($("#ai-in").value); } });
 
 try { const s = localStorage.getItem("csb-sexo"); if (s) setSex(s); } catch(e){}
