@@ -58,7 +58,7 @@ const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "
 const STOP = new Set("que los las una uno por con para del como puedo puede pueden hay esto eso esta este ser estar tengo cual sobre mas muy pero les sus tus yo ese esa son fue era hace hacer cuando donde porque colegio reglamento dice tiene algo nada todo".split(" "));
 const words = s => [...new Set(norm(s).match(/[a-zñ0-9]{3,}/g) || [])].filter(w => !STOP.has(w)).map(w => w.slice(0, 5));
 const TOPICS = [ // si la pregunta toca el tema, va la sección entera
-  ["uniforme", /unifor|ropa|vest|camis|blusa|pantal|jumper|falda|zapat|calcet|poler|buzo|chaquet|corbat|sweat|chaleco|parka|abrigo|pelo|cabell|barba|aros?\b|piercing|accesor|collar|pulsera|anillo|maquill|una(s)?\b|tatu|gorro|jockey|educacion fisica|ed\.? fisica|deporte|pong|llevar|usar|color|calor|frio|comod|ir al/],
+  ["uniforme", /unifor|ropa|vest|camis|blusa|pantal|jumper|falda|zapat|calcet|poler|buzo|chaquet|corbat|sweat|chaleco|parka|abrigo|pelo|cabell|barba|aros?\b|piercing|accesor|collar|pulsera|anillo|maquill|tatu|gorro|jockey|educacion fisica|ed\.? fisica|deporte|pong|vestimenta|color|calor|frio|comod|ir al cole/],
   ["celular", /celul|telefon|movil|audifon|reloj|smartwatch|tablet|computador|notebook|\bia\b|inteligencia|chatgpt|gpt|gemini|tecnolog|pantalla|recreo/],
   ["faltas", /falta|grave|leve|que (me )?pasa si|me pueden (sancionar|castigar|anotar|echar)|es delito/],
   ["sanciones", /sanci|castig|anot|notific|condicional|expuls|cancel|suspen|echar|aula segura|matricul|hoja de vida|registro|que (me )?pasa si|me pueden/],
@@ -83,15 +83,16 @@ function pickLines(kb, sex, query, opts = {}) {
 
 // ---- Revisión: una segunda pasada compara el borrador con el reglamento y lo corrige ----
 // Ve solo las reglas que el borrador cita (por página o n.º de falta) y, si habla de eso, los derechos, pasos y escalera.
-const REVIEW_SYS = `Eres un revisor muy estricto. Recibes INFORMACIÓN DEL REGLAMENTO, una PREGUNTA de un estudiante de 7° básico y un BORRADOR de respuesta. Devuelve el borrador corregido.
+const REVIEW_SYS = `Eres un revisor muy estricto. Recibes INFORMACIÓN DEL REGLAMENTO, una PREGUNTA de un estudiante de 7° básico y un BORRADOR de respuesta. Revisa el borrador.
 Corrige solo esto:
 1. Cada dato debe decir exactamente lo que dice la información, con su página. Si un dato no está en la información o está mal, corrígelo o bórralo. No agregues datos que no estén en la información.
 2. No exageres: una regla vale solo para lo que dice (por ejemplo, "antes de cancelar o expulsar" no es "antes de cualquier sanción"). Di "la ley" solo si la información dice que es de la ley; si la información dice "discutible", no lo presentes como seguro.
 3. Revisa cada negación: que ninguna frase diga lo contrario de lo que quiso decir (por ejemplo, "no debió dejarte explicar" en vez de "debió dejarte explicar").
 4. Llama "derecho" solo a lo que la información presenta como derecho o garantía.
 5. Lo que el borrador cuenta que se ve en una foto, déjalo igual.
-Mantén el tono, el formato con "- " y **negrita**, y el largo (máximo 200 palabras). Debe terminar con: "Esto es orientativo; para algo formal, consulta a un abogado."
-Responde SOLO con la respuesta final corregida, sin explicar qué cambiaste.`;
+6. Que hable de lo que se preguntó: borra las reglas o faltas que no tienen que ver con la pregunta.
+Si no hay nada que corregir, responde solo: OK
+Si hay algo que corregir, responde SOLO con la respuesta final corregida, sin explicar qué cambiaste. Mantén el tono, el formato con "- " y **negrita**, y el largo (máximo 200 palabras). Debe terminar con: "Esto es orientativo; para algo formal, consulta a un abogado."`;
 // La revisión solo hace falta cuando hay riesgo de error: casos, fotos, derechos, plazos o sanciones fuertes.
 const RISKY = /derech|\bley\b|legal|plazo|d[ií]as|apel|reclam|expuls|cancel|condicional|superintend|discutible|inocen|versi[oó]n/i;
 function reviewLines(kb, sex, draft) {
@@ -104,21 +105,22 @@ function reviewLines(kb, sex, draft) {
     || (l.sec === "escalera" && /notific|condicional|expuls|cancel|amonest/.test(d))
     || cited.some(p => new RegExp("p[áa]gs?\\. [\\d–]*?\\b" + p + "\\b").test(l.t))).map(l => l.t);
 }
-function system(lines, sex) {
+// Las instrucciones de casos y de fotos van solo cuando hacen falta (cada letra que se manda cuesta).
+function system(lines, sex, { img, isCase } = {}) {
   const who = sex === "h" ? "hombre" : sex === "m" ? "mujer" : "no indicado (si la regla cambia según el sexo, da ambas)";
-  return `Eres el asistente de "Vacío Legal CSB", una guía no oficial del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, colegio particular pagado). Hablas con un estudiante de 7° básico (Tercer Ciclo). Sexo del estudiante: ${who}.
+  return `Eres el asistente de "Vacío Legal CSB", guía no oficial del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, particular pagado). Hablas con un estudiante de 7° básico. Sexo: ${who}.
 
 Cómo responder:
-- Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo 120 palabras para una pregunta corta.
-- Si te cuentan un caso que les pasó, puedes usar hasta 200 palabras: revisa cada hecho por separado (qué dice la regla, si el colegio la cumplió o no) y también el procedimiento: si no lo dejaron explicar, tiene derecho a dar su versión antes de que decidan (pág. 87), a pedir la resolución por escrito (pág. 88) y a reclamar a tiempo. Llama "derecho" solo a lo que la lista presenta como derecho o garantía, no a una regla cualquiera.
-- Usa SOLO la información de la lista de abajo. Después de cada dato pon su página entre paréntesis, tal como aparece en la lista, por ejemplo (pág. 37).
-- Lee cada pregunta pensando en el colegio: por ejemplo, "cómo ir al colegio" o "qué me pongo" es sobre el uniforme. Reúne TODAS las reglas de la lista que sirvan (no solo una o dos) y, si piden "lo más cómodo" o "lo que más se puede", di qué opciones permitidas son las más cómodas.
-- La lista trae las reglas que parecen servir para esta pregunta. Si no lo cubre, di "No encontré una regla sobre eso en el reglamento" y, solo si la lista trae una regla general que sirva, menciónala.
-- Si hay dos lecturas posibles, muestra ambas (la del colegio y la que te favorece).
-- Si algo tiene riesgo real de sanción, dilo claro. Si la situación es grave (amenazas, abuso, expulsión), recomienda hablar con un adulto de confianza o un abogado.
-- No inventes normas, plazos ni páginas. Usa viñetas con "- " cuando ayuden y **negrita** solo para lo clave. Sin títulos ni tablas.
-- Si te mandan una foto preguntando si algo se puede: di en corto qué ves que importe para el reglamento (ropa, uniforme, zapatos, pelo, aros, piercings, un celular, etc.) y si eso se permite según la lista, con su página. Si no se ve bien o no se puede saber desde una foto (por ejemplo, el largo exacto del jumper o si un color es "llamativo"), dilo. Lo que se ve en una foto es aproximado: dilo. Habla solo de lo que pide la regla: no comentes el cuerpo, la cara ni el aspecto de la persona, y no intentes saber quién es. Si la foto no tiene que ver con el colegio, dilo.
-- Solo hablas del reglamento y de tus derechos en el colegio. Si preguntan otra cosa, di con buena onda que solo hablas de eso.
+- Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo ${isCase ? 200 : 110} palabras.${isCase ? `
+- Te cuentan un caso: revisa cada hecho por separado (qué dice la regla, si el colegio la cumplió o no) y el procedimiento: si no lo dejaron explicar, puede dar su versión antes de que decidan (pág. 87), pedir la resolución por escrito (pág. 88) y reclamar a tiempo.` : ""}
+- Usa SOLO la lista de abajo, que trae las reglas que parecen servir. Después de cada dato pon su página tal como aparece, por ejemplo (pág. 37). Menciona solo reglas y faltas que tengan que ver con lo que preguntan.
+- Lee la pregunta pensando en el colegio ("cómo ir al colegio" o "qué me pongo" es sobre el uniforme). Reúne todas las reglas de la lista que sirvan; si piden "lo más cómodo", di qué opciones permitidas son las más cómodas.
+- Si la lista no lo cubre, di "No encontré una regla sobre eso en el reglamento" y, solo si hay una regla general que sirva, menciónala.
+- Si hay dos lecturas posibles, muestra ambas (la del colegio y la que te favorece). Llama "derecho" solo a lo que la lista presenta como derecho o garantía.
+- Si hay riesgo real de sanción, dilo claro. Si es grave (amenazas, abuso, expulsión), recomienda hablar con un adulto de confianza o un abogado.
+- No inventes normas, plazos ni páginas. Viñetas con "- " si ayudan y **negrita** solo para lo clave. Sin títulos ni tablas.${img ? `
+- Te mandaron una foto: di en corto qué ves que importe para el reglamento (ropa, zapatos, pelo, aros, accesorios, celular, etc.) y si se permite según la lista, con su página. Lo que se ve en una foto es aproximado: dilo, y si algo no se puede saber desde la foto (un largo exacto, si un color es "llamativo"), dilo. No comentes el cuerpo, la cara ni el aspecto de la persona, ni intentes saber quién es. Si la foto no tiene que ver con el colegio, dilo.` : ""}
+- Solo hablas del reglamento y de tus derechos en el colegio; si preguntan otra cosa, dilo con buena onda.
 - Termina siempre con: "Esto es orientativo; para algo formal, consulta a un abogado."
 
 INFORMACIÓN DEL REGLAMENTO:
@@ -156,7 +158,8 @@ export async function onRequestPost(context) {
   try { kb = await loadKB(context); } catch { return out(request, { error: "sin-datos" }, 500); }
   const last = hist[hist.length - 1];
   const recent = hist.filter(m => m.role === "user").slice(-2).map(m => m.content).join("\n");
-  const sys = system(pickLines(kb, sex, recent, { img: !!img, isCase: last.content.length > 250 }), sex);
+  const opts = { img: !!img, isCase: last.content.length > 250 };
+  const sys = system(pickLines(kb, sex, recent, opts), sex, opts);
   let spent = 0; // neuronas de esta pregunta
   const msgs = [{ role: "system", content: sys }, ...hist.slice(0, -1),
     img ? { role: "user", content: [{ type: "text", text: last.content }, { type: "image_url", image_url: { url: img } }] } : last];
@@ -188,7 +191,7 @@ export async function onRequestPost(context) {
     const fixed = cleanAI((r && (r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content))) || "");
     const u = (r && r.usage) || {};
     spent += neurons(AI_MAIN, u.prompt_tokens || Math.ceil(rmsg[1].content.length / 3.2 + 300), u.completion_tokens || Math.ceil(fixed.length / 3.2));
-    if (fixed.length > 80 && /orientativo/.test(fixed)) final = fixed;
+    if (fixed.length > 80 && /orientativo/.test(fixed)) final = fixed; // si respondió "OK", queda el borrador
   } catch {}
   use.neu += spent;
   return out(request, { text: final, n: Math.round(spent) });
