@@ -17,7 +17,7 @@ Tiene un buscador y un asistente con IA que acepta casos y fotos ("¿esto se pue
 | `wrangler.toml` | Configura el proyecto de Pages: carpeta `docs` y la variable `AI`. |
 
 La IA gratis de Cloudflare son 10.000 neuronas al día para toda la cuenta (también las usa Surf Maitencillo).
-Esta guía se pone un tope de 1.500 neuronas al día y 20 preguntas por conexión; si se acaba, el asistente
+Esta guía se pone un tope de 1.750 neuronas al día (~50 preguntas: a la IA solo le llegan las reglas que sirven) y 20 preguntas por conexión; si se acaba, el asistente
 responde buscando en el reglamento.
 
 Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.

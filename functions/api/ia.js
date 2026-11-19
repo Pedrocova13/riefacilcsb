@@ -4,7 +4,7 @@
 // esta guía se pone un tope propio bajo para no comérselas.
 const AI_MAIN = { id: "@cf/google/gemma-4-26b-a4b-it", inM: 9091, outM: 27273 };   // neuronas por millón de tokens
 const AI_BACKUP = { id: "@cf/meta/llama-4-scout-17b-16e-instruct", inM: 24545, outM: 77273 };
-const CAP = { day: 1500, ipDay: 20, ipMin: 5, ipImg: 6 }; // neuronas al día para esta guía · preguntas por conexión al día y por minuto · fotos por conexión al día
+const CAP = { day: 1750, ipDay: 20, ipMin: 5, ipImg: 6 }; // neuronas al día para esta guía (~35 por pregunta = ~50 preguntas; Surf 8.000 + esto < 10.000 gratis) · preguntas por conexión al día y por minuto · fotos por conexión al día
 const ORIGINS = ["https://pedrocova13.github.io"]; // la copia de GitHub Pages también puede preguntar
 const TABS = { uniforme: "Uniforme", celular: "Celular e IA", faltas: "Faltas", sanciones: "Sanciones", reclamar: "Si te sancionan", derechos: "Derechos" };
 const GRAV = { leve: "Leve", mod: "Moderada", grave: "Grave", mgrave: "Muy grave" };
