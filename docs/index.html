@@ -205,7 +205,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 <!-- ======= PANTALLA INICIAL ======= -->
 <div class="intro" id="intro">
   <div class="in">
-    <span class="crest"><i>SB</i>Colegio San Benito · Reglamento 2026</span>
+    <span class="crest"><i>§</i>Guía no oficial · Reglamento Colegio San Benito 2026</span>
     <h1>¿Eres hombre o mujer?</h1>
     <p class="lead">El uniforme, los aros y el pelo cambian según eso. Elige y te muestro solo lo que te aplica en 7° básico, con la página exacta del reglamento.</p>
     <div class="tiles">
@@ -226,7 +226,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 <div id="app" hidden>
   <header class="top">
     <div class="in">
-      <div class="brand"><i>7°</i><div><h1>Mis Reglas en 7°</h1><p>Colegio San Benito · Tercer Ciclo</p></div></div>
+      <div class="brand"><i>7°</i><div><h1>Mis Reglas en 7°</h1><p>Guía no oficial · Colegio San Benito · 7° básico</p></div></div>
       <div class="seg" role="group" aria-label="Mostrar reglas para">
         <button data-seg="h" aria-pressed="false">Hombre</button>
         <button data-seg="m" aria-pressed="false">Mujer</button>
@@ -617,7 +617,7 @@ function addMsg(role, html, cls=""){
 function welcome(){
   $("#msgs").innerHTML = "";
   addMsg("a", aiMode==="server"
-    ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento o cuéntame lo que te pasó, y te respondo con la página exacta.</p><p>También puedes mandarme una <b>foto</b> (tus zapatillas, tu corte, un aro…) con el botón de la cámara y te digo si se puede. La foto no se guarda.</p>"
+    ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento o cuéntame lo que te pasó, y te respondo con la página exacta.</p><p>También puedes mandarme una <b>foto</b> (tus zapatillas, tu corte, un aro…) con el botón de la cámara y te digo si se puede. Manda solo fotos tuyas o de tus cosas, nunca de otras personas. La foto no se guarda.</p>"
     : aiMode==="claude"
     ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento y te respondo con la página exacta.</p>"
     : "<p>Hola. Ahora respondo <b>buscando en el reglamento</b>, sin IA. La IA completa está en <b>vaciolegalcsb.pages.dev</b>.</p>");
