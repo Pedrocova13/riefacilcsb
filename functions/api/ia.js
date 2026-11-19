@@ -62,9 +62,9 @@ const TOPICS = [ // si la pregunta toca el tema, va la sección entera
   ["celular", /celul|telefon|movil|audifon|reloj|smartwatch|tablet|computador|notebook|\bia\b|inteligencia|chatgpt|gpt|gemini|tecnolog|pantalla|recreo/],
   ["faltas", /falta|grave|leve|que (me )?pasa si|me pueden (sancionar|castigar|anotar|echar)|es delito/],
   ["sanciones", /sanci|castig|anot|notific|condicional|expuls|cancel|suspen|echar|aula segura|matricul|hoja de vida|registro|que (me )?pasa si|me pueden/],
-  ["escalera", /notific|condicional|expuls|cancel|amonest|escalera|cuant/],
+  ["escalera", /notific|condicional|expuls|cancel|echar|echen|amonest|escalera|cuant/],
   ["pasos", /apel|reclam|recurs|injust|defend|defens|acus|culpa|version|explic|pillar|pillaron|reto|retar|citar|citaron|firm|resoluc|superintend/],
-  ["claves", /derech|ley\b|legal|ilegal|abogad|plazo|expuls|cancel|mentir|inocen|apel|reclam|justo|injust/],
+  ["claves", /derech|ley\b|legal|ilegal|abogad|plazo|expuls|cancel|echar|echen|mentir|inocen|apel|reclam|justo|injust/],
   ["derechos", /derech|discrim|digni|revis|mochila|privac|imagen|foto|grab|redes|critic|opin|acoso|bull|maltrat|concienc|evalua|centro de alumnos/],
 ];
 function pickLines(kb, sex, query, opts = {}) {
@@ -94,7 +94,7 @@ Corrige solo esto:
 Si no hay nada que corregir, responde solo: OK
 Si hay algo que corregir, responde SOLO con la respuesta final corregida, sin explicar qué cambiaste. Mantén el tono, el formato con "- " y **negrita**, y el largo (máximo 200 palabras). Debe terminar con: "Esto es orientativo; para algo formal, consulta a un abogado."`;
 // La revisión solo hace falta cuando hay riesgo de error: casos, fotos, derechos, plazos o sanciones fuertes.
-const RISKY = /derech|\bley\b|legal|plazo|d[ií]as|apel|reclam|expuls|cancel|condicional|superintend|discutible|inocen|versi[oó]n/i;
+const RISKY = /muy grave|derech|\bley\b|legal|plazo|d[ií]as|apel|reclam|expuls|cancel|condicional|superintend|discutible|inocen|versi[oó]n/i;
 function reviewLines(kb, sex, draft) {
   const d = norm(draft);
   const cited = [...draft.matchAll(/p[áa]gs?\.\s*(\d+(?:\s*[–-]\s*\d+)?)/g)].flatMap(m => m[1].split(/\s*[–-]\s*/));
