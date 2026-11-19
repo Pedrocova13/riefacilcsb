@@ -8,380 +8,322 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: una ficha escolar. Pregunta inicial a pantalla, luego secciones apiladas con índice fijo arriba. Azul marino del uniforme + blanco camisa; color semántico solo para gravedad. */
+/* Layout: app de una columna. Encabezado azul marino tipo insignia, barra fija con buscador + pestañas, una sección visible a la vez, asistente en panel lateral (hoja inferior en celular). */
 :root{
-  --bg:#f5f7fb; --paper:#ffffff; --ink:#14203a; --muted:#56627a; --line:#d9dfea;
-  --navy:#1d3a6e; --navy-ink:#ffffff; --tint:#e8eef9;
-  --leve:#2f7d4f; --leve-bg:#e3f3e9; --mod:#8a6400; --mod-bg:#fbf0d2;
-  --grave:#b4500f; --grave-bg:#fde6d6; --mgrave:#b3242f; --mgrave-bg:#fbe0e2;
-  --warn-bg:#fff6e0; --warn-line:#e7c56b;
-  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
-  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#152238; --muted:#5b6780; --line:#dfe4ee; --soft:#eef2f8;
+  --navy:#16305e; --navy-2:#21427d; --on-navy:#ffffff; --gold:#b7892c; --gold-soft:#f6ecd6;
+  --leve:#2c7a4b; --leve-bg:#e2f2e8; --mod:#876200; --mod-bg:#f9efcf;
+  --grave:#b14d0d; --grave-bg:#fce4d3; --mgrave:#b0222d; --mgrave-bg:#fadde0;
+  --mark:#fff1b8;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --shadow:0 10px 30px rgba(21,34,56,.14);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1524; --paper:#151f33; --ink:#e6ebf5; --muted:#9aa6bd; --line:#2a3752;
-  --navy:#7fa3e6; --navy-ink:#0e1524; --tint:#1c2a46;
-  --leve:#7fd4a0; --leve-bg:#163626; --mod:#f0c75e; --mod-bg:#3a2f12;
-  --grave:#f6a46b; --grave-bg:#40240f; --mgrave:#ff8a92; --mgrave-bg:#451a1f;
-  --warn-bg:#2f2812; --warn-line:#7a6526; color-scheme:dark}}
+  --bg:#0d1422; --paper:#141d30; --ink:#e5eaf4; --muted:#9ba7bf; --line:#27344d; --soft:#1a2540;
+  --navy:#1b3566; --navy-2:#27498a; --on-navy:#ffffff; --gold:#e0b55a; --gold-soft:#3a2f17;
+  --leve:#80d4a2; --leve-bg:#163525; --mod:#efc760; --mod-bg:#382e12;
+  --grave:#f5a46c; --grave-bg:#3f2410; --mgrave:#ff8b93; --mgrave-bg:#44191e;
+  --mark:#5a4a12; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1524; --paper:#151f33; --ink:#e6ebf5; --muted:#9aa6bd; --line:#2a3752;
-  --navy:#7fa3e6; --navy-ink:#0e1524; --tint:#1c2a46;
-  --leve:#7fd4a0; --leve-bg:#163626; --mod:#f0c75e; --mod-bg:#3a2f12;
-  --grave:#f6a46b; --grave-bg:#40240f; --mgrave:#ff8a92; --mgrave-bg:#451a1f;
-  --warn-bg:#2f2812; --warn-line:#7a6526; color-scheme:dark}
+  --bg:#0d1422; --paper:#141d30; --ink:#e5eaf4; --muted:#9ba7bf; --line:#27344d; --soft:#1a2540;
+  --navy:#1b3566; --navy-2:#27498a; --on-navy:#ffffff; --gold:#e0b55a; --gold-soft:#3a2f17;
+  --leve:#80d4a2; --leve-bg:#163525; --mod:#efc760; --mod-bg:#382e12;
+  --grave:#f5a46c; --grave-bg:#3f2410; --mgrave:#ff8b93; --mgrave-bg:#44191e;
+  --mark:#5a4a12; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0}
-.wrap{max-width:860px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 64px}
-h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
-h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:800;letter-spacing:-.02em}
-h2{font-size:1.6rem;font-weight:700}
-h3{font-size:1.1rem;font-weight:700}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.5;margin:0}
+h1,h2,h3{font-family:var(--f-display);line-height:1.12;text-wrap:balance;margin:0}
 p{margin:0}
-.eyebrow{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.ref{font-family:var(--f-mono);font-size:.74rem;color:var(--navy);background:var(--tint);padding:1px 7px;border-radius:4px;white-space:nowrap}
-button{font:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.in{max-width:900px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.pg{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);background:var(--soft);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.pill{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.g-leve{color:var(--leve);background:var(--leve-bg)} .g-mod{color:var(--mod);background:var(--mod-bg)}
+.g-grave{color:var(--grave);background:var(--grave-bg)} .g-mgrave{color:var(--mgrave);background:var(--mgrave-bg)}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
 
-/* Pregunta inicial */
-.ask{display:grid;gap:22px;padding-block:6vh 2vh}
-.ask p.lead{color:var(--muted);max-width:56ch;font-size:1.08rem}
-.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:560px}
-.choice{display:grid;gap:6px;text-align:left;padding:20px 20px 18px;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:14px;transition:border-color .15s, transform .15s}
-.choice:hover{border-color:var(--navy);transform:translateY(-2px)}
-.choice b{font-family:var(--f-display);font-size:1.45rem}
-.choice span{color:var(--muted);font-size:.92rem}
-.linkish{background:none;border:0;padding:0;color:var(--navy);text-decoration:underline;text-underline-offset:3px;font-size:.95rem;justify-self:start}
-.peek{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.peek span{font-size:.85rem;border:1px solid var(--line);border-radius:999px;padding:3px 11px;color:var(--muted)}
+/* ---------- Pantalla inicial ---------- */
+.intro{min-height:100%;display:grid;align-content:center;padding-block:7vh 5vh}
+.intro .in{display:grid;gap:20px}
+.crest{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.crest i{display:grid;place-items:center;width:30px;height:34px;border-radius:6px 6px 14px 14px;background:var(--navy);color:var(--on-navy);font-style:normal;font-family:var(--f-display);font-weight:800;font-size:.8rem;letter-spacing:0}
+.intro h1{font-size:clamp(2.2rem,7vw,3.6rem);font-weight:800;letter-spacing:-.025em}
+.intro .lead{color:var(--muted);max-width:52ch;font-size:1.05rem}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:560px}
+.tile{display:grid;gap:12px;text-align:left;padding:18px;background:var(--paper);border:1.5px solid var(--line);border-radius:16px;transition:transform .15s,border-color .15s,box-shadow .15s}
+.tile:hover{transform:translateY(-2px);border-color:var(--navy-2);box-shadow:var(--shadow)}
+.tile b{font-family:var(--f-display);font-size:1.4rem;font-weight:800}
+.tile span{color:var(--muted);font-size:.88rem}
+.swatches{display:flex;gap:5px}
+.swatches s{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);text-decoration:none}
+.linkish{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;justify-self:start;font-size:.92rem}
 
-/* Ficha y navegación */
-.ficha{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:16px 18px;background:var(--navy);color:var(--navy-ink);border-radius:14px}
-.ficha .who{font-family:var(--f-display);font-size:1.25rem;font-weight:700}
-.ficha dl{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;font-size:.9rem;opacity:.92}
-.ficha dt{display:inline;font-weight:700}
-.ficha dd{display:inline;margin:0 0 0 4px}
-.ficha .change{margin-left:auto;background:transparent;color:var(--navy-ink);border:1.5px solid currentColor;border-radius:999px;padding:4px 14px;font-size:.88rem}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
-nav.toc{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);padding-block:10px;margin-top:14px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
-nav.toc a{flex:none;font-size:.9rem;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 13px}
-nav.toc a:hover{border-color:var(--navy)}
-section{display:grid;gap:16px;padding-top:34px;scroll-margin-top:60px}
-.sec-head{display:grid;gap:6px}
-.sec-head p{color:var(--muted);max-width:62ch}
+/* ---------- App ---------- */
+header.top{background:var(--navy);color:var(--on-navy);padding-block:18px 16px}
+header.top .in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand i{display:grid;place-items:center;flex:none;width:38px;height:44px;border-radius:7px 7px 18px 18px;background:var(--gold);color:#16305e;font-style:normal;font-family:var(--f-display);font-weight:800;font-size:.95rem}
+.brand h1{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.brand p{font-size:.82rem;opacity:.8}
+.seg{margin-left:auto;display:flex;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--on-navy);padding:5px 13px;border-radius:999px;font-size:.86rem;font-weight:600;opacity:.85}
+.seg button[aria-pressed="true"]{background:var(--on-navy);color:#16305e;opacity:1}
 
-.list{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.row{display:grid;grid-template-columns:minmax(0,9.5rem) minmax(0,1fr);gap:4px 16px;padding:12px 16px;border-top:1px solid var(--line)}
-.row:first-child{border-top:0}
-.row .k{font-weight:700}
-.row .v{min-width:0}
-.row .v .ref{margin-left:6px}
-@media (max-width:560px){.row{grid-template-columns:1fr}}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:30;background:var(--bg)}
+.bar{position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .in{display:grid;gap:10px;padding-block:12px 0}
+.searchbox{position:relative}
+.searchbox input{width:100%;padding:11px 14px 11px 40px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font-size:.98rem}
+.searchbox input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--gold-soft)}
+.searchbox svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.results{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);max-height:min(60vh,420px);overflow:auto;padding:6px}
+.res{display:grid;gap:2px;width:100%;text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:8px}
+.res:hover,.res:focus-visible{background:var(--soft)}
+.res small{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold)}
+.res span{font-size:.92rem}
+.res-empty{padding:12px;color:var(--muted);font-size:.92rem}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-inline:-4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:transparent;padding:9px 12px 11px;font-weight:600;font-size:.92rem;color:var(--muted);border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
 
-.note{display:grid;gap:6px;padding:14px 16px;background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:12px}
-.note b{font-family:var(--f-display)}
-.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-@media (max-width:640px){.two{grid-template-columns:1fr}}
-.box{display:grid;gap:8px;align-content:start;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:12px;min-width:0}
-.box ul{margin:0;padding-left:1.1rem;display:grid;gap:4px}
-.ok{color:var(--leve);font-weight:700}
-.no{color:var(--mgrave);font-weight:700}
+main{padding-block:22px 110px}
+.panel{display:grid;gap:14px}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 14px}
+.panel-head h2{font-size:1.45rem;font-weight:800}
+.panel-head p{color:var(--muted);font-size:.9rem}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:680px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.card h3{font-size:.8rem;font-family:var(--f-body);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 14px 6px}
+.r{display:grid;grid-template-columns:minmax(0,8.5rem) minmax(0,1fr) auto;gap:4px 12px;align-items:baseline;padding:9px 14px;border-top:1px solid var(--line)}
+.card h3 + .r{border-top:0}
+.r .k{font-weight:700;font-size:.9rem}
+.r .t{min-width:0}
+.r .k::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--line)}
+.r.ok .k::before{background:var(--leve)} .r.no .k::before{background:var(--mgrave)} .r.warn .k::before{background:var(--gold)}
+@media (max-width:520px){.r{grid-template-columns:minmax(0,1fr) auto}.r .t{grid-column:1 / -1;grid-row:2}}
+.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,40%{background:var(--mark)}100%{background:transparent}}
 
 /* Faltas */
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chip{border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 13px;font-size:.9rem;font-weight:600}
+.dist{display:flex;height:10px;border-radius:999px;overflow:hidden;gap:2px}
+.dist span{display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 11px;font-size:.84rem;font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.chip b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.search{flex:1 1 200px;min-width:0;font:inherit;font-size:.95rem;padding:7px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
-.faltas{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.falta{display:grid;grid-template-columns:2.2rem minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 14px;border-top:1px solid var(--line)}
-.falta:first-child{border-top:0}
-.falta .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);padding-top:3px;font-variant-numeric:tabular-nums}
-.falta .t{min-width:0}
-.falta .flag{display:block;font-size:.85rem;color:var(--grave);margin-top:2px}
-.pill{font-size:.76rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 9px;border-radius:999px;white-space:nowrap}
-.g-leve{color:var(--leve);background:var(--leve-bg)}
-.g-mod{color:var(--mod);background:var(--mod-bg)}
-.g-grave{color:var(--grave);background:var(--grave-bg)}
-.g-mgrave{color:var(--mgrave);background:var(--mgrave-bg)}
-.count{font-size:.88rem;color:var(--muted)}
+.chip[aria-pressed="true"] b{color:var(--bg)}
+.f{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 14px;border-top:1px solid var(--line)}
+.f:first-child{border-top:0}
+.f .n{font-family:var(--f-mono);font-size:.76rem;color:var(--muted);padding-top:2px;font-variant-numeric:tabular-nums}
+.f .w{display:block;font-size:.84rem;color:var(--grave);margin-top:2px}
 
 /* Escalera */
-.ladder{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.step{display:grid;grid-template-columns:4.2rem minmax(0,1fr);gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:start}
-.step:first-child{border-top:0}
-.step .num{font-family:var(--f-display);font-weight:800;font-size:1.35rem;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
-.step .num small{display:block;font-family:var(--f-body);font-weight:600;font-size:.72rem;color:var(--muted)}
-.step .plazo{font-size:.9rem;color:var(--muted)}
-.step.hot .num{color:var(--mgrave)}
+.ladder{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.rung{display:grid;gap:4px;align-content:start;padding:10px 9px;background:var(--paper);border:1px solid var(--line);border-radius:12px;min-width:0}
+.rung .num{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;color:var(--navy-2);font-variant-numeric:tabular-nums}
+.rung .num small{font-family:var(--f-body);font-size:.66rem;font-weight:600;color:var(--muted);margin-left:2px}
+.rung b{font-size:.84rem;line-height:1.25}
+.rung p{font-size:.78rem;color:var(--muted)}
+.rung.hot{border-color:var(--mgrave)} .rung.hot .num{color:var(--mgrave)}
+@media (max-width:760px){.ladder{grid-template-columns:1fr}.rung{grid-template-columns:3rem minmax(0,1fr);align-items:start}.rung .num{grid-row:span 2}}
 
-/* Pasos y plantilla */
-ol.steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:s}
-ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:10px;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
-ol.steps li::before{content:counter(s);font-family:var(--f-display);font-weight:800;font-size:1.2rem;color:var(--navy)}
-.tpl{display:grid;gap:10px}
-.tpl pre{margin:0;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:12px;font-family:var(--f-mono);font-size:.82rem;line-height:1.6;white-space:pre-wrap;overflow-x:auto}
-.btn{justify-self:start;background:var(--navy);color:var(--navy-ink);border:0;border-radius:10px;padding:8px 16px;font-weight:700}
-.copied{font-size:.9rem;color:var(--leve);font-weight:700}
-footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;display:grid;gap:6px}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
-html{scroll-behavior:smooth}
+/* Pasos */
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:1.8rem minmax(0,1fr) auto;gap:10px;padding:10px 14px;border-top:1px solid var(--line);align-items:baseline}
+ol.steps li:first-child{border-top:0}
+ol.steps li::before{content:counter(s);font-family:var(--f-display);font-weight:800;color:var(--gold)}
+details.carta{background:var(--paper);border:1px solid var(--line);border-radius:14px}
+details.carta summary{cursor:pointer;padding:12px 14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.carta summary::after{content:"Ver";color:var(--muted);font-weight:600}
+details.carta[open] summary::after{content:"Ocultar"}
+details.carta pre{margin:0 14px;padding:12px 14px;background:var(--soft);border-radius:10px;font-family:var(--f-mono);font-size:.78rem;line-height:1.6;white-space:pre-wrap;overflow-x:auto}
+.carta-actions{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.btn{border:0;border-radius:10px;padding:8px 15px;font-weight:700;background:var(--navy);color:var(--on-navy)}
+.ok-msg{color:var(--leve);font-weight:700;font-size:.9rem}
+footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
+
+/* ---------- Asistente ---------- */
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;align-items:center;gap:9px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--navy);color:var(--on-navy);font-weight:700;box-shadow:var(--shadow)}
+.fab i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#16305e;font-style:normal;font-family:var(--f-display);font-weight:800;font-size:.8rem}
+.ai{position:fixed;z-index:50;right:calc(16px + env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));width:min(420px, calc(100vw - 32px));height:min(620px, calc(100vh - 32px));display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+@media (max-width:560px){.ai{left:0;right:0;bottom:0;width:auto;height:min(86vh, calc(100% - 40px));border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom, 0px);padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}}
+.ai-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--navy);color:var(--on-navy)}
+.ai-head b{font-family:var(--f-display);font-size:1.05rem}
+.mode{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.15);border-radius:999px;padding:2px 8px}
+.ai-head .x{margin-left:auto;border:0;background:transparent;color:var(--on-navy);font-size:1.4rem;line-height:1;padding:2px 6px}
+.msgs{overflow:auto;padding:14px;display:grid;gap:10px;align-content:start}
+.m{max-width:88%;padding:9px 12px;border-radius:14px;font-size:.92rem;line-height:1.5;overflow-wrap:anywhere}
+.m.u{justify-self:end;background:var(--navy);color:var(--on-navy);border-bottom-right-radius:4px}
+.m.a{justify-self:start;background:var(--soft);border-bottom-left-radius:4px}
+.m.a ul{margin:4px 0;padding-left:1.1rem}
+.m.a p + p{margin-top:6px}
+.m.a .pg{background:var(--paper)}
+.m.a.think{color:var(--muted);font-style:italic}
+.sugg{display:flex;flex-wrap:wrap;gap:6px}
+.sugg button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:.84rem}
+.ai-foot{border-top:1px solid var(--line);padding:10px 12px;display:grid;gap:6px}
+.ai-form{display:flex;gap:8px}
+.ai-form textarea{flex:1;min-width:0;resize:none;height:44px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
+.ai-form textarea:focus{outline:none;border-color:var(--navy-2)}
+.ai-form button{border:0;border-radius:12px;padding:0 16px;font-weight:700;background:var(--navy);color:var(--on-navy)}
+.ai-note{font-size:.74rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 
-<div class="wrap">
-
-  <!-- Paso 1: la pregunta -->
-  <div class="ask" id="ask">
-    <span class="eyebrow">Colegio San Benito · Reglamento Interno 2026</span>
+<!-- ======= PANTALLA INICIAL ======= -->
+<div class="intro" id="intro">
+  <div class="in">
+    <span class="crest"><i>SB</i>Colegio San Benito · Reglamento 2026</span>
     <h1>¿Eres hombre o mujer?</h1>
-    <p class="lead">El uniforme, los aros y algunas reglas de presentación cambian según eso. Elige una opción y te muestro solo lo que te aplica en 7° básico, con la página exacta del reglamento.</p>
-    <div class="choices">
-      <button class="choice" id="pick-h" data-sex="h"><b>Hombre</b><span>Pantalón gris, camisa, sin aros</span></button>
-      <button class="choice" id="pick-m" data-sex="m"><b>Mujer</b><span>Jumper o pantalón, hasta 2 aros</span></button>
+    <p class="lead">El uniforme, los aros y el pelo cambian según eso. Elige y te muestro solo lo que te aplica en 7° básico, con la página exacta del reglamento.</p>
+    <div class="tiles">
+      <button class="tile" data-sex="h" id="pick-h">
+        <span class="swatches" aria-hidden="true"><s style="background:#8d939c"></s><s style="background:#ffffff"></s><s style="background:#16305e"></s></span>
+        <b>Hombre</b><span>Pantalón gris · sin aros</span>
+      </button>
+      <button class="tile" data-sex="m" id="pick-m">
+        <span class="swatches" aria-hidden="true"><s style="background:#16305e"></s><s style="background:#ffffff"></s><s style="background:#0b0f18"></s></span>
+        <b>Mujer</b><span>Jumper o pantalón · 2 aros</span>
+      </button>
     </div>
-    <button class="linkish" id="pick-both" data-sex="ambos">Prefiero ver las reglas de ambos</button>
-    <div class="peek" aria-label="Lo que vas a encontrar">
-      <span>Uniforme</span><span>Celular e IA</span><span>Las 50 faltas</span><span>Escalera de sanciones</span><span>Qué hacer si te sancionan</span><span>Tus derechos</span>
-    </div>
-  </div>
-
-  <!-- Paso 2: la guía -->
-  <div id="guide" hidden>
-    <div class="ficha">
-      <span class="who" id="who">Hombre · 7° básico</span>
-      <dl>
-        <div><dt>Ciclo:</dt><dd>Tercer Ciclo (7° a II° medio)</dd></div>
-        <div><dt>Tabla de faltas:</dt><dd>7° básico a IV° medio</dd></div>
-      </dl>
-      <button class="change" id="change">Cambiar</button>
-    </div>
-
-    <nav class="toc" aria-label="Secciones">
-      <a href="#uniforme">Uniforme</a><a href="#celular">Celular e IA</a><a href="#faltas">Faltas</a><a href="#sanciones">Sanciones</a><a href="#sancionado">Si te sancionan</a><a href="#derechos">Tus derechos</a>
-    </nav>
-
-    <!-- UNIFORME -->
-    <section id="uniforme">
-      <div class="sec-head">
-        <span class="eyebrow">Sección 7 del reglamento</span>
-        <h2>Tu uniforme</h2>
-        <p>Desde 7° básico usas el uniforme de Secundaria. No cumplirlo es una falta <span class="pill g-mod">Moderada</span> (n.º 11 de la tabla).</p>
-      </div>
-
-      <div class="list" data-for="h">
-        <div class="row"><span class="k">Ropa</span><span class="v">Pantalón gris escolar, camisa blanca, chaqueta azul marino con insignia al lado izquierdo y corbata del colegio. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Camisa</span><span class="v">Dentro del pantalón. <span class="ref">pág. 36</span></span></div>
-        <div class="row"><span class="k">Zapatos</span><span class="v">Zapatos o zapatillas completamente negras, de caña baja. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Calcetines</span><span class="v">Azul marino o negros, que no sean de caña baja. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Abrigo</span><span class="v">Sweater azul marino cerrado, escote en V. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Aros y piercings</span><span class="v"><span class="no">No.</span> Ni aros ni piercings, y no se pueden tapar con parches. <span class="ref">pág. 38</span></span></div>
-      </div>
-
-      <div class="list" data-for="m">
-        <div class="row"><span class="k">Opción A</span><span class="v">Jumper escolar azul marino con insignia al lado izquierdo, blusa blanca y corbata del colegio. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Opción B</span><span class="v">Pantalón escolar azul marino, blusa blanca, corbata y blazer azul marino con insignia. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Largo del jumper</span><span class="v">Máximo 8 cm entre el borde del jumper y la rodilla. <span class="ref">pág. 36</span></span></div>
-        <div class="row"><span class="k">Zapatos</span><span class="v">Zapatos o zapatillas completamente negras, de caña baja, sin plataforma ni suela elevada. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Calcetines</span><span class="v">Calcetines largos o pantis azul marino. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Abrigo</span><span class="v">Sweater azul marino con botones. <span class="ref">pág. 37</span></span></div>
-        <div class="row"><span class="k">Aros</span><span class="v"><span class="ok">Sí,</span> hasta dos aros pequeños y discretos por oreja, no colgantes. Sin piercings visibles. <span class="ref">págs. 36–37</span></span></div>
-      </div>
-
-      <div class="two">
-        <div class="box">
-          <h3>Para todos</h3>
-          <ul>
-            <li>Corbata y chaqueta son <b>voluntarias</b> en un día normal, pero obligatorias en misas, charlas, graduaciones y ceremonias. <span class="ref">pág. 36</span></li>
-            <li>Encima puedes usar polerón, polar o parka azul marino o negro, liso y sin logos llamativos, y bufanda o cuello de esos colores. No en actividades institucionales. <span class="ref">pág. 38</span></li>
-            <li>No se permiten cortes de fantasía (mohicano, rayas) ni teñidos llamativos. El color debe parecerse al natural. <span class="ref">pág. 38</span></li>
-            <li>Nada de piercings en nariz, ceja o labio, ni ropa rota, sin basta, desteñida o sucia. <span class="ref">pág. 38</span></li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Educación Física</h3>
-          <ul>
-            <li>Polera y polerón del colegio, short y pantalón de buzo del colegio. <span class="ref">pág. 37</span></li>
-            <li>Zapatillas de deporte sobrias. No de lona ni de skate. <span class="ref">pág. 37</span></li>
-            <li data-for="m">Puedes usar calzas negras largas deportivas, solo para entrenamientos. <span class="ref">pág. 37</span></li>
-            <li>Llegas con uniforme, te cambias en el camarín, te duchas y vuelves al uniforme. Si Educación Física es a primera hora puedes llegar con buzo; si es a última, puedes irte con buzo. <span class="ref">pág. 38</span></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="note">
-        <b>Ojo</b>
-        <p>Según las instrucciones de la Superintendencia de Educación, no cumplir con el uniforme no debería impedirte entrar o quedarte en clases. El reglamento del colegio no lo dice, pero tampoco lo autoriza. Y si tu identidad de género no coincide con el uniforme que te asignan, la Circular 812 te protege. El reglamento no tiene reglas sobre eso.</p>
-      </div>
-    </section>
-
-    <!-- CELULAR E IA -->
-    <section id="celular">
-      <div class="sec-head">
-        <span class="eyebrow">Secciones 6.4 y 6.6</span>
-        <h2>Celular, reloj inteligente e IA</h2>
-        <p>Incluye celulares, relojes inteligentes, tablets y audífonos inalámbricos. <span class="ref">pág. 31</span></p>
-      </div>
-      <div class="two">
-        <div class="box">
-          <h3><span class="ok">Puedes</span></h3>
-          <ul>
-            <li>Traerlo, siempre que esté <b>apagado y guardado</b> en la mochila o el locker toda la jornada. <span class="ref">pág. 32</span></li>
-            <li>Llamar a tu casa desde los teléfonos de Recepción, del Encargado de Ciclo o de Convivencia. <span class="ref">pág. 32</span></li>
-            <li>Usarlo si tienes una autorización escrita del Encargado de Ciclo por salud, necesidades educativas, seguridad familiar o una actividad de clase. <span class="ref">pág. 33</span></li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3><span class="no">No puedes</span></h3>
-          <ul>
-            <li>Usarlo en clases, recreos, almuerzo, misas, deportes ni en el estadio. <span class="ref">pág. 32</span></li>
-            <li>Tenerlo en la mano, <b>en el bolsillo</b> o sobre la mesa: el reglamento lo cuenta como "uso". <span class="ref">pág. 32</span></li>
-            <li>Usar IA en pruebas o tareas sin que el profesor lo autorice. <span class="ref">pág. 34</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="list">
-        <div class="row"><span class="k">Si te pillan</span><span class="v">Se registra y se activa el "Camino de Formación". Si es reiterado o desafiante pese a advertencias, es falta <span class="pill g-grave">Grave</span>. <span class="ref">pág. 34</span></span></div>
-        <div class="row"><span class="k">Retención</span><span class="v">Te lo quitan y lo entregan <b>solo a tu apoderado</b>, el mismo día "o en la oportunidad que el establecimiento determine". Esa frase no fija un plazo máximo y es discutible. <span class="ref">pág. 34</span></span></div>
-        <div class="row"><span class="k">Copiar con IA</span><span class="v">Presentar como tuyo un trabajo hecho con IA o copiado es <span class="pill g-mgrave">Muy grave</span>, igual que amenazar a alguien. <span class="ref">pág. 68</span></span></div>
-      </div>
-    </section>
-
-    <!-- FALTAS -->
-    <section id="faltas">
-      <div class="sec-head">
-        <span class="eyebrow">Tabla 7° básico a IV° medio · págs. 66–70</span>
-        <h2>Las 50 faltas</h2>
-        <p>La primera falta leve no se anota en el libro de clases. <span class="ref">pág. 57</span> Las marcadas con ⚠ tienen problemas que puedes usar a tu favor.</p>
-      </div>
-      <div class="filters" role="group" aria-label="Filtrar por gravedad">
-        <button class="chip" aria-pressed="true" data-g="todas">Todas</button>
-        <button class="chip" aria-pressed="false" data-g="leve">Leves</button>
-        <button class="chip" aria-pressed="false" data-g="mod">Moderadas</button>
-        <button class="chip" aria-pressed="false" data-g="grave">Graves</button>
-        <button class="chip" aria-pressed="false" data-g="mgrave">Muy graves</button>
-        <input class="search" id="q" type="search" placeholder="Buscar: celular, pelea, atraso…" aria-label="Buscar falta">
-      </div>
-      <p class="count" id="count"></p>
-      <div class="faltas" id="faltas-list"></div>
-    </section>
-
-    <!-- SANCIONES -->
-    <section id="sanciones">
-      <div class="sec-head">
-        <span class="eyebrow">Sección 4.7 · Tercer y Cuarto Ciclo</span>
-        <h2>La escalera de sanciones</h2>
-        <p>Cada falta grave o muy grave genera una <b>notificación</b> directa. Las faltas moderadas se acumulan: si en 30 días tienes más de 3 registros negativos (descontando los positivos), también llega una notificación. Un registro positivo compensa uno negativo. <span class="ref">pág. 51</span></p>
-      </div>
-      <div class="ladder">
-        <div class="step"><span class="num">2<small>notif.</small></span><div><b>Primera corrección formal</b><p class="plazo">Firmas compromisos con tu profesor jefe.</p></div></div>
-        <div class="step"><span class="num">3<small>notif.</small></span><div><b>Segunda corrección formal</b><p class="plazo">Nuevos compromisos con tu profesor jefe.</p></div></div>
-        <div class="step"><span class="num">4<small>notif.</small></span><div><b>Corrección comunitaria</b><p class="plazo">Compromisos con profesor jefe y apoderado.</p></div></div>
-        <div class="step"><span class="num">5<small>notif.</small></span><div><b>Amonestación</b><p class="plazo">Primera sanción formal. Puedes pedir reconsideración en <b>2 días hábiles</b>; el colegio responde en 4. <span class="ref">pág. 73</span></p></div></div>
-        <div class="step"><span class="num">8<small>notif.</small></span><div><b>Precondicionalidad</b><p class="plazo">Reconsideración en <b>3 días hábiles</b>. Mientras dure, no puedes representar al colegio en talleres ni selecciones. <span class="ref">págs. 19, 74</span></p></div></div>
-        <div class="step hot"><span class="num">10<small>notif.</small></span><div><b>Condicionalidad</b><p class="plazo">Reconsideración en <b>4 días hábiles</b>. ⚠ Una página dice que la cancelación es automática si reincides y otra dice que hay que fundamentarla. Vale la segunda. <span class="ref">págs. 74–75</span></p></div></div>
-        <div class="step hot"><span class="num">12<small>notif.</small></span><div><b>Cancelación de matrícula o expulsión</b><p class="plazo">El reglamento da 5 días hábiles para reclamar, pero la ley da <b>15 días hábiles</b> y exige consultar al Consejo de Profesores (DFL 2 de 1998, art. 6 d). <span class="ref">págs. 75–76</span></p></div></div>
-      </div>
-      <div class="two">
-        <div class="box">
-          <h3>Además</h3>
-          <ul>
-            <li>Suspensión de clases de hasta 5 días por faltas graves. <span class="ref">pág. 73</span></li>
-            <li>Cada medida dura máximo 3 meses, pero queda anotada en tu hoja de vida. <span class="ref">págs. 78–79</span></li>
-            <li>Si te aplican una medida desde noviembre, la revisan a fines de marzo. <span class="ref">pág. 75</span></li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Aula Segura</h3>
-          <ul>
-            <li>Solo para casos graves: agresión física grave, armas, agresión sexual, amenazas serias. <span class="ref">pág. 165</span></li>
-            <li>Tienes 5 días hábiles para dar tu versión y presentar pruebas. <span class="ref">pág. 166</span></li>
-            <li>La suspensión mientras investigan no puede pasar de 10 días hábiles según la ley. El reglamento agrega 5 más y eso es discutible. <span class="ref">pág. 167</span></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SI TE SANCIONAN -->
-    <section id="sancionado">
-      <div class="sec-head">
-        <span class="eyebrow">Sección 4.11 · págs. 86–88</span>
-        <h2>Si te sancionan</h2>
-        <p>Los plazos se cuentan en días hábiles desde que te comunican la medida por escrito.</p>
-      </div>
-      <ol class="steps">
-        <li><div><b>No firmes nada que no entiendas.</b> Pide que te expliquen qué hecho se te imputa y qué falta de la tabla sería.</div></li>
-        <li><div><b>Da tu versión antes de que decidan.</b> Es tu derecho. <span class="ref">pág. 87</span> Pide ver las pruebas que hay en tu contra.</div></li>
-        <li><div><b>Pide la resolución por escrito</b>, con los hechos, las pruebas y la sanción. El colegio está obligado a darla. <span class="ref">pág. 88</span></div></li>
-        <li><div><b>Anota el plazo y reclama a tiempo.</b> Tú o tu apoderado pueden apelar. <span class="ref">pág. 88</span> Si es cancelación o expulsión, pide los 15 días que da la ley.</div></li>
-        <li><div><b>Guarda evidencia:</b> correos, capturas, nombres de testigos y fechas.</div></li>
-        <li><div><b>Si el colegio no responde o no respeta el proceso</b>, tu apoderado puede presentar una denuncia en la Superintendencia de Educación (superintendenciaeducacion.cl).</div></li>
-      </ol>
-      <div class="tpl">
-        <h3>Carta de reconsideración</h3>
-        <pre id="tpl">Santiago, [FECHA]
-
-Señor Rector
-Colegio San Benito
-Presente
-
-Yo, [NOMBRE DEL ESTUDIANTE], alumno/a de 7° básico [CURSO], junto a mi apoderado/a [NOMBRE DEL APODERADO], solicito la reconsideración de la medida de [MEDIDA] que se me comunicó el [FECHA DE COMUNICACIÓN].
-
-Fundamentos:
-1. [Explica tu versión de los hechos.]
-2. La medida no respeta el principio de proporcionalidad del Reglamento Interno (pág. 71), porque [razón].
-3. [Si aplica: no se me permitió dar mi versión antes de la decisión, como exige la pág. 87.]
-4. [Si es cancelación o expulsión: solicito que se respete el plazo de 15 días hábiles y la consulta al Consejo de Profesores del art. 6 letra d) del DFL N° 2 de 1998.]
-
-Adjunto: [documentos, capturas, testigos].
-
-Solicito dejar sin efecto o rebajar la medida.
-
-[FIRMA ESTUDIANTE]          [FIRMA APODERADO/A]</pre>
-        <button class="btn" id="copy">Copiar carta</button>
-        <span class="copied" id="copied" hidden>Copiada</span>
-      </div>
-    </section>
-
-    <!-- DERECHOS -->
-    <section id="derechos">
-      <div class="sec-head">
-        <span class="eyebrow">Sección 4.1 · págs. 24–25</span>
-        <h2>Tus derechos</h2>
-      </div>
-      <div class="two">
-        <div class="box">
-          <h3>Lo que el reglamento te reconoce</h3>
-          <ul>
-            <li>No ser discriminado y ser tratado con dignidad.</li>
-            <li>Estudiar sin acoso ni maltrato.</li>
-            <li>Que respeten tu libertad de conciencia y tus convicciones.</li>
-            <li>Dar tu opinión en las instancias formales del colegio.</li>
-            <li>Conocer las pautas de evaluación y ser evaluado con objetividad.</li>
-            <li>Participar en el Centro de Alumnos y actividades extraprogramáticas.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Lo que el reglamento no dice</h3>
-          <ul>
-            <li><b>Revisar tu mochila o casillero:</b> no hay ninguna regla. Puedes pedir que lo hagan delante de tu apoderado.</li>
-            <li><b>Usar tu foto o video:</b> nada regula que el colegio use tu imagen. Puedes negarte.</li>
-            <li><b>Criticar al colegio en redes fuera del horario:</b> no está regulado directamente, aunque hay faltas vagas que podrían usarse.</li>
-            <li><b>Grabar a un profesor:</b> solo se prohíbe grabar "sin consentimiento para uso inapropiado". Es zona gris.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <p>Basado en el Reglamento Interno del Colegio San Benito, versión 04, vigente desde el 9 de marzo de 2026. Las páginas citadas son las del PDF oficial.</p>
-      <p>Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.</p>
-    </footer>
+    <button class="linkish" data-sex="ambos" id="pick-both">Prefiero ver las reglas de ambos</button>
   </div>
 </div>
 
+<!-- ======= APP ======= -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="in">
+      <div class="brand"><i>7°</i><div><h1>Mis Reglas en 7°</h1><p>Colegio San Benito · Tercer Ciclo</p></div></div>
+      <div class="seg" role="group" aria-label="Mostrar reglas para">
+        <button data-seg="h" aria-pressed="false">Hombre</button>
+        <button data-seg="m" aria-pressed="false">Mujer</button>
+        <button data-seg="ambos" aria-pressed="false">Ambos</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="in">
+      <div class="searchbox">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" placeholder="Busca cualquier regla: aros, celular, cimarra, expulsión…" aria-label="Buscar en el reglamento">
+        <div class="results" id="results" hidden></div>
+      </div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+    </div>
+  </div>
+
+  <main class="in" id="main"></main>
+</div>
+
+<!-- ======= ASISTENTE ======= -->
+<button class="fab" id="fab" hidden><i>IA</i>Pregúntale a la IA</button>
+<aside class="ai" id="ai" hidden aria-label="Asistente del reglamento">
+  <div class="ai-head"><b>Asistente</b><span class="mode" id="mode">Conectando…</span><button class="x" id="ai-close" aria-label="Cerrar">×</button></div>
+  <div class="msgs" id="msgs"></div>
+  <div class="ai-foot">
+    <form class="ai-form" id="ai-form">
+      <textarea id="ai-in" placeholder="Escribe tu pregunta…" aria-label="Tu pregunta"></textarea>
+      <button type="submit" id="ai-send">Enviar</button>
+    </form>
+    <p class="ai-note" id="ai-note">Responde con el reglamento del colegio. Es orientativo: para algo formal, consulta a un abogado.</p>
+  </div>
+</aside>
+
 <script>
+/* ================== DATOS ================== */
+const TABS = [
+  {id:"uniforme", label:"Uniforme"},
+  {id:"celular", label:"Celular e IA"},
+  {id:"faltas", label:"Faltas"},
+  {id:"sanciones", label:"Sanciones"},
+  {id:"reclamar", label:"Si te sancionan"},
+  {id:"derechos", label:"Derechos"}
+];
+// [tab, grupo, título, texto, página, sexo?, tono?]
+const ITEMS = [
+  ["uniforme","Tu uniforme","Ropa","Pantalón gris escolar, camisa blanca, chaqueta azul marino con insignia a la izquierda y corbata del colegio.","37","h"],
+  ["uniforme","Tu uniforme","Camisa","Siempre dentro del pantalón.","36","h"],
+  ["uniforme","Tu uniforme","Zapatos","Zapatos o zapatillas completamente negras, de caña baja.","37","h"],
+  ["uniforme","Tu uniforme","Calcetines","Azul marino o negros, que no sean de caña baja.","37","h"],
+  ["uniforme","Tu uniforme","Sweater","Azul marino, cerrado, escote en V.","37","h"],
+  ["uniforme","Tu uniforme","Aros y piercings","No se permiten, y no se pueden tapar con parches.","38","h","no"],
+  ["uniforme","Tu uniforme","Opción A","Jumper azul marino con insignia a la izquierda, blusa blanca y corbata del colegio.","37","m"],
+  ["uniforme","Tu uniforme","Opción B","Pantalón escolar azul marino, blusa blanca, corbata y blazer azul marino con insignia.","37","m"],
+  ["uniforme","Tu uniforme","Largo del jumper","Máximo 8 cm entre el borde del jumper y la rodilla.","36","m"],
+  ["uniforme","Tu uniforme","Zapatos","Completamente negros, de caña baja, sin plataforma ni suela elevada.","37","m"],
+  ["uniforme","Tu uniforme","Calcetines","Calcetines largos o pantis azul marino.","37","m"],
+  ["uniforme","Tu uniforme","Sweater","Azul marino con botones.","37","m"],
+  ["uniforme","Tu uniforme","Aros","Hasta dos aros pequeños y discretos por oreja, no colgantes. Sin piercings visibles.","36–37","m","ok"],
+  ["uniforme","Para todos","Corbata y chaqueta","Voluntarias en un día normal. Obligatorias en misas, charlas, graduaciones y ceremonias.","36"],
+  ["uniforme","Para todos","Abrigo extra","Polerón, polar o parka azul marino o negro, liso y sin logos llamativos. Bufanda o cuello de esos colores. No en actividades institucionales.","38"],
+  ["uniforme","Para todos","Pelo","Sin cortes de fantasía (mohicano, rayas) ni teñidos llamativos. El color debe parecerse al natural.","38","","no"],
+  ["uniforme","Para todos","Piercings","Ninguno en nariz, ceja o labio.","38","","no"],
+  ["uniforme","Para todos","Estado de la ropa","Nada roto, sin basta, desteñido o sucio.","38"],
+  ["uniforme","Para todos","Si no cumples","Es falta Moderada (n.º 11 de la tabla).","66","","warn"],
+  ["uniforme","Educación Física","Ropa","Polera, polerón, short y pantalón de buzo del colegio.","37"],
+  ["uniforme","Educación Física","Zapatillas","De deporte y sobrias. No de lona ni de skate.","37"],
+  ["uniforme","Educación Física","Calzas","Negras, largas y deportivas, solo para entrenamientos.","37","m"],
+  ["uniforme","Educación Física","Cambio de ropa","Llegas con uniforme, te cambias en el camarín, te duchas y vuelves al uniforme.","38"],
+  ["uniforme","Educación Física","Primera o última hora","A primera hora puedes llegar con buzo; a última hora puedes irte con buzo.","38"],
+  ["uniforme","Ojo","Uniforme y clases","Según la Superintendencia de Educación, no cumplir con el uniforme no debería impedirte entrar a clases. El reglamento no lo autoriza.","Circular 482","","warn"],
+  ["uniforme","Ojo","Identidad de género","Si tu identidad de género no coincide con el uniforme asignado, la Circular 812 te protege. El reglamento no lo regula.","Circular 812","","warn"],
+
+  ["celular","Puedes","Traerlo","Apagado y guardado en la mochila o el locker durante toda la jornada.","32","","ok"],
+  ["celular","Puedes","Llamar a tu casa","Desde los teléfonos de Recepción, del Encargado de Ciclo o de Convivencia.","32","","ok"],
+  ["celular","Puedes","Excepciones","Con autorización escrita del Encargado de Ciclo por salud, necesidades educativas, seguridad familiar o una actividad de clase.","33","","ok"],
+  ["celular","No puedes","Dónde","Usarlo en clases, recreos, almuerzo, misas, deportes ni en el estadio.","32","","no"],
+  ["celular","No puedes","Qué cuenta como uso","Tenerlo en la mano, en el bolsillo o sobre la mesa.","32","","no"],
+  ["celular","No puedes","Qué aparatos","Celulares, relojes inteligentes, tablets y audífonos inalámbricos.","31","","no"],
+  ["celular","Si te pillan","Registro","Se anota y empieza el Camino de Formación.","34"],
+  ["celular","Si te pillan","Uso reiterado","Usarlo de forma reiterada o desafiante pese a advertencias es falta Grave.","34","","warn"],
+  ["celular","Si te pillan","Retención","Te lo quitan y lo entregan solo a tu apoderado, el mismo día \"o cuando el colegio determine\". No hay plazo máximo y eso es discutible.","34","","warn"],
+  ["celular","Inteligencia artificial","Cuándo sí","Solo cuando el profesor la autoriza como recurso de la clase.","34","","ok"],
+  ["celular","Inteligencia artificial","Cuándo no","Para responder pruebas o hacer tareas sin autorización.","34","","no"],
+  ["celular","Inteligencia artificial","Copiar con IA","Presentar como tuyo un trabajo hecho con IA o copiado es falta Muy grave.","68","","no"],
+  ["celular","Inteligencia artificial","Fotos o audios trucados","Manipular imágenes, audios o información para engañar o dañar la honra de alguien está prohibido.","34","","no"],
+
+  ["sanciones","Cómo funciona","Notificación directa","Cada falta grave o muy grave genera una notificación a tu apoderado.","51"],
+  ["sanciones","Cómo funciona","Por acumulación","Si en 30 días tienes más de 3 registros negativos (restando los positivos), llega una notificación.","51"],
+  ["sanciones","Cómo funciona","Registros positivos","Cada registro positivo compensa uno negativo, sin borrarlo.","51","","ok"],
+  ["sanciones","Cómo funciona","Primera falta leve","No se anota en el libro de clases.","57","","ok"],
+  ["sanciones","Además","Suspensión","Hasta 5 días de suspensión por faltas graves.","73","","warn"],
+  ["sanciones","Además","Duración","Cada medida dura máximo 3 meses, pero queda en tu hoja de vida.","78–79"],
+  ["sanciones","Además","Desde noviembre","Una medida aplicada desde noviembre se revisa a fines de marzo.","75"],
+  ["sanciones","Además","Actividades","Con precondicionalidad o condicionalidad no puedes representar al colegio en talleres ni selecciones.","19","","warn"],
+  ["sanciones","Aula Segura","Cuándo","Solo en casos graves: agresión física grave, armas, agresión sexual o amenazas serias.","165"],
+  ["sanciones","Aula Segura","Tu defensa","Tienes 5 días hábiles para dar tu versión y presentar pruebas.","166","","ok"],
+  ["sanciones","Aula Segura","Suspensión mientras investigan","Por ley no puede pasar de 10 días hábiles. El reglamento agrega 5 más y eso es discutible.","167","","warn"],
+
+  ["derechos","Lo que te reconoce","No discriminación","Ser tratado con dignidad y sin discriminación.","24","","ok"],
+  ["derechos","Lo que te reconoce","Sin acoso","Estudiar sin acoso ni maltrato.","24","","ok"],
+  ["derechos","Lo que te reconoce","Conciencia","Que respeten tu libertad de conciencia y tus convicciones.","24","","ok"],
+  ["derechos","Lo que te reconoce","Opinión","Dar tu opinión en las instancias formales del colegio.","24","","ok"],
+  ["derechos","Lo que te reconoce","Evaluación","Conocer las pautas de evaluación y ser evaluado con objetividad.","24","","ok"],
+  ["derechos","Lo que te reconoce","Participación","Participar en el Centro de Alumnos y en actividades extraprogramáticas.","24","","ok"],
+  ["derechos","Lo que no dice","Revisar tu mochila","No hay ninguna regla. Puedes pedir que lo hagan delante de tu apoderado.","No regulado","","warn"],
+  ["derechos","Lo que no dice","Tu foto o video","Nada regula que el colegio use tu imagen. Puedes negarte.","No regulado","","warn"],
+  ["derechos","Lo que no dice","Criticar al colegio en redes","No está regulado directamente, aunque hay faltas vagas que podrían usarse.","No regulado","","warn"],
+  ["derechos","Lo que no dice","Grabar a un profesor","Solo se prohíbe grabar sin consentimiento \"para uso inapropiado\". Es zona gris.","69","","warn"],
+  ["derechos","Claves legales","Solo lo escrito","Solo pueden sancionarte por conductas escritas en el reglamento (Ley General de Educación, art. 46 f). La cláusula que permite sancionar conductas no escritas es discutible.","58"],
+  ["derechos","Claves legales","Antes de expulsar","Si la falta no daña a nadie (copiar, cimarra), antes de cancelar o expulsar deben advertir a tu familia y darte apoyo (DFL 2 de 1998, art. 6 d).","73"],
+  ["derechos","Claves legales","Plazo para reclamar","La ley da 15 días hábiles para reclamar una cancelación o expulsión. El reglamento dice 5.","75"],
+  ["derechos","Claves legales","Época del año","No pueden expulsarte en una fecha que te impida matricularte en otro colegio, salvo agresiones graves (DFL 2 de 1998, art. 6 d).","Ley"],
+  ["derechos","Claves legales","Tú también reclamas","Tú o tu apoderado pueden apelar una sanción.","88","","ok"],
+  ["derechos","Claves legales","Presunción de inocencia","Negar una acusación no es mentir. El propio reglamento reconoce la presunción de inocencia.","113","","ok"],
+  ["derechos","Claves legales","Colegio pagado","Aunque el colegio sea particular pagado, las reglas legales de expulsión igual se aplican (Dictamen 52 de 2020).","112"]
+];
+// [n, conducta, gravedad, advertencia?]
 const FALTAS = [
   [1,"Interrumpir de vez en cuando la clase o actividades grupales","leve"],
   [2,"No obedecer instrucciones simples en actividades habituales","leve"],
@@ -420,7 +362,7 @@ const FALTAS = [
   [35,"Agredir física o verbalmente a compañeros o adultos","mgrave"],
   [36,"Discriminar por razones culturales, sociales, religiosas u otras","mgrave"],
   [37,"Amenazar a compañeros o adultos","mgrave"],
-  [38,"Copiar, plagiar o falsificar trabajos, pruebas o documentos, con o sin IA","mgrave","Copiar en una prueba no afecta la integridad de nadie. Por ley no debería llevar a expulsión sin advertencia y apoyo previos."],
+  [38,"Copiar, plagiar o falsificar trabajos, pruebas o documentos, con o sin IA","mgrave","Copiar no afecta la integridad de nadie. Por ley no debería llevar a expulsión sin advertencia y apoyo previos."],
   [39,"Hurtar o robar","mgrave"],
   [40,"Tomar fotos o videos sin consentimiento para uso inapropiado","mgrave"],
   [41,"Hacer cosas peligrosas en actividades escolares o salidas","mgrave"],
@@ -434,47 +376,291 @@ const FALTAS = [
   [49,"Organizar o incitar peleas entre compañeros","mgrave"],
   [50,"Publicar o difundir contenido sin consentimiento, o hacer ciberacoso","mgrave"]
 ];
-const LABEL = {leve:"Leve", mod:"Moderada", grave:"Grave", mgrave:"Muy grave"};
-let filtro = "todas";
+const GRAV = {leve:"Leve", mod:"Moderada", grave:"Grave", mgrave:"Muy grave"};
+// [notificaciones, medida, detalle, pág, caliente?]
+const LADDER = [
+  ["2","Primera corrección","Compromisos escritos con tu profesor jefe.","82"],
+  ["3","Segunda corrección","Nuevos compromisos con tu profesor jefe.","82"],
+  ["4","Corrección comunitaria","Compromisos con profesor jefe y apoderado.","82"],
+  ["5","Amonestación","Primera sanción formal. Reclamas en 2 días hábiles.","73"],
+  ["8","Precondicionalidad","Reclamas en 3 días hábiles.","74"],
+  ["10","Condicionalidad","Reclamas en 4 días hábiles. No es automático pasar a cancelación: deben fundamentarlo.","74–75",1],
+  ["12","Cancelación o expulsión","La ley te da 15 días hábiles para reclamar, no 5, y exige consultar al Consejo de Profesores.","75–76",1]
+];
+// [paso, pág?]
+const STEPS = [
+  ["No firmes nada que no entiendas. Pide que te digan qué hecho te imputan y qué falta de la tabla sería.",""],
+  ["Da tu versión antes de que decidan y pide ver las pruebas en tu contra.","87"],
+  ["Pide la resolución por escrito, con hechos, pruebas y sanción. Están obligados a darla.","88"],
+  ["Anota el plazo y reclama a tiempo: tú o tu apoderado pueden apelar. Si es cancelación o expulsión, pide los 15 días de la ley.","88"],
+  ["Guarda evidencia: correos, capturas, testigos y fechas.",""],
+  ["Si no responden o no respetan el proceso, tu apoderado puede denunciar en la Superintendencia de Educación (superintendenciaeducacion.cl).",""]
+];
+const CARTA = `Santiago, [FECHA]
 
-function renderFaltas(){
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const list = document.getElementById("faltas-list");
-  const rows = FALTAS.filter(f => (filtro==="todas"||f[2]===filtro) && (!q || f[1].toLowerCase().includes(q)));
-  list.innerHTML = rows.map(f => `<div class="falta"><span class="n">${f[0]}</span><span class="t">${f[1]}${f[3]?`<span class="flag">⚠ ${f[3]}</span>`:""}</span><span class="pill g-${f[2]}">${LABEL[f[2]]}</span></div>`).join("")
-    || `<div class="falta"><span class="n"></span><span class="t">No hay faltas con esa palabra. Prueba con otra.</span><span></span></div>`;
-  document.getElementById("count").textContent = `${rows.length} de 50 faltas`;
+Señor Rector
+Colegio San Benito
+Presente
+
+Yo, [NOMBRE DEL ESTUDIANTE], alumno/a de 7° básico [CURSO], junto a mi apoderado/a [NOMBRE DEL APODERADO], solicito la reconsideración de la medida de [MEDIDA] que se me comunicó el [FECHA DE COMUNICACIÓN].
+
+Fundamentos:
+1. [Explica tu versión de los hechos.]
+2. La medida no respeta el principio de proporcionalidad del Reglamento Interno (pág. 71), porque [razón].
+3. [Si aplica: no se me permitió dar mi versión antes de la decisión, como exige la pág. 87.]
+4. [Si es cancelación o expulsión: solicito que se respete el plazo de 15 días hábiles y la consulta al Consejo de Profesores del art. 6 letra d) del DFL N° 2 de 1998.]
+
+Adjunto: [documentos, capturas, testigos].
+
+Solicito dejar sin efecto o rebajar la medida.
+
+[FIRMA ESTUDIANTE]          [FIRMA APODERADO/A]`;
+
+/* ================== ESTADO ================== */
+let sex = null, tab = "uniforme", gfilter = "todas";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const pgTag = p => !p ? "" : `<span class="pg">${/^[\d–]+$/.test(p) ? "pág. "+p : esc(p)}</span>`;
+const visible = it => !it[5] || sex === "ambos" || it[5] === sex;
+
+/* ================== RENDER ================== */
+function renderTabs(){
+  $("#tabs").innerHTML = TABS.map(t => `<button class="tab" role="tab" data-tab="${t.id}" aria-selected="${t.id===tab}">${t.label}</button>`).join("");
 }
-document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
-  filtro = b.dataset.g;
-  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c===b ? "true":"false"));
-  renderFaltas();
-}));
-document.getElementById("q").addEventListener("input", renderFaltas);
-
-function show(sex){
-  document.getElementById("ask").hidden = true;
-  document.getElementById("guide").hidden = false;
-  document.getElementById("who").textContent = sex==="h" ? "Hombre · 7° básico" : sex==="m" ? "Mujer · 7° básico" : "Hombres y mujeres · 7° básico";
-  document.querySelectorAll("[data-for]").forEach(el => { el.hidden = !(sex==="ambos" || el.dataset.for===sex); });
-  try { localStorage.setItem("csb-sexo", sex); } catch(e) {}
-  window.scrollTo({top:0});
+function rowsFor(tabId){
+  const groups = {};
+  ITEMS.forEach((it,i) => { if (it[0]===tabId && visible(it)) (groups[it[1]] ||= []).push([it,i]); });
+  return Object.entries(groups).map(([g,list]) => `<div class="card"><h3>${esc(g)}</h3>${list.map(([it,i]) =>
+    `<div class="r ${it[6]||""}" id="i-${i}"><span class="k">${esc(it[2])}</span><span class="t">${esc(it[3])}</span>${pgTag(it[4])}</div>`).join("")}</div>`);
 }
-document.querySelectorAll("[data-sex]").forEach(b => b.addEventListener("click", () => show(b.dataset.sex)));
-document.getElementById("change").addEventListener("click", () => {
-  document.getElementById("guide").hidden = true;
-  document.getElementById("ask").hidden = false;
-  try { localStorage.removeItem("csb-sexo"); } catch(e) {}
-  window.scrollTo({top:0});
-});
-document.getElementById("copy").addEventListener("click", () => {
-  const text = document.getElementById("tpl").textContent;
-  const done = () => { const c = document.getElementById("copied"); c.hidden = false; setTimeout(() => c.hidden = true, 2000); };
-  const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("tpl")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
-  try { navigator.clipboard.writeText(text).then(done, fallback); } catch(e) { fallback(); }
-});
+function renderMain(){
+  const m = $("#main"); let h = "";
+  if (tab==="uniforme"){
+    const c = rowsFor("uniforme");
+    h = head("Tu uniforme", sex==="h" ? "Uniforme de Secundaria para hombres" : sex==="m" ? "Uniforme de Secundaria para mujeres" : "Uniforme de Secundaria, hombres y mujeres")
+      + `<div class="grid2">${c[0]||""}${c[1]||""}</div><div class="grid2">${c.slice(2).join("")}</div>`;
+  } else if (tab==="celular"){
+    const c = rowsFor("celular");
+    h = head("Celular e IA","Secciones 6.4 y 6.6 del reglamento") + `<div class="grid2">${c.join("")}</div>`;
+  } else if (tab==="faltas"){
+    const counts = {leve:0,mod:0,grave:0,mgrave:0}; FALTAS.forEach(f => counts[f[2]]++);
+    const list = FALTAS.filter(f => gfilter==="todas" || f[2]===gfilter);
+    h = head("Las 50 faltas","Tabla de 7° básico a IV° medio · págs. 66–70")
+      + `<div class="dist" aria-hidden="true">${Object.keys(counts).map(k => `<span class="g-${k}" style="flex:${counts[k]};background:var(--${k})"></span>`).join("")}</div>`
+      + `<div class="legend" role="group" aria-label="Filtrar por gravedad"><button class="chip" data-g="todas" aria-pressed="${gfilter==="todas"}">Todas <b>50</b></button>${Object.keys(counts).map(k => `<button class="chip" data-g="${k}" aria-pressed="${gfilter===k}">${GRAV[k]} <b>${counts[k]}</b></button>`).join("")}</div>`
+      + `<div class="card">${list.map(f => `<div class="f" id="f-${f[0]}"><span class="n">${f[0]}</span><span>${esc(f[1])}${f[3]?`<span class="w">⚠ ${esc(f[3])}</span>`:""}</span><span class="pill g-${f[2]}">${GRAV[f[2]]}</span></div>`).join("")}</div>`
+      + `<p class="pg" style="justify-self:start">La primera falta leve no se anota · pág. 57</p>`;
+  } else if (tab==="sanciones"){
+    const c = rowsFor("sanciones");
+    h = head("La escalera de sanciones","Según cuántas notificaciones acumulas · pág. 82")
+      + `<div class="ladder">${LADDER.map((l,i) => `<div class="rung${l[4]?" hot":""}" id="l-${i}"><span class="num">${l[0]}<small>notif.</small></span><b>${esc(l[1])}</b><p>${esc(l[2])} ${pgTag(l[3])}</p></div>`).join("")}</div>`
+      + `<div class="grid2">${c[0]||""}${c[1]||""}</div>${c[2]||""}`;
+  } else if (tab==="reclamar"){
+    h = head("Si te sancionan","Los plazos son días hábiles desde que te avisan por escrito")
+      + `<div class="card"><ol class="steps">${STEPS.map((s,i) => `<li id="s-${i}"><span>${esc(s[0])}</span>${pgTag(s[1])}</li>`).join("")}</ol></div>`
+      + `<details class="carta" id="carta"><summary>Carta de reconsideración lista para completar</summary><pre id="tpl">${esc(CARTA)}</pre><div class="carta-actions"><button class="btn" id="copy">Copiar carta</button><span class="ok-msg" id="copied" hidden>Copiada</span></div></details>`;
+  } else if (tab==="derechos"){
+    const c = rowsFor("derechos");
+    h = head("Tus derechos","Sección 4.1 del reglamento y leyes que lo limitan") + `<div class="grid2">${c[0]||""}${c[1]||""}</div>${c[2]||""}`;
+  }
+  m.innerHTML = `<div class="panel">${h}</div><footer><p>Basado en el Reglamento Interno del Colegio San Benito, versión 04, vigente desde el 9 de marzo de 2026.</p><p>Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.</p></footer>`;
+}
+const head = (t,s) => `<div class="panel-head"><h2>${esc(t)}</h2><p>${esc(s)}</p></div>`;
 
-renderFaltas();
-try { const saved = localStorage.getItem("csb-sexo"); if (saved) show(saved); } catch(e) {}
+function setTab(id){
+  tab = id; renderTabs(); renderMain();
+  document.querySelector(`.tab[data-tab="${id}"]`)?.scrollIntoView({inline:"nearest",block:"nearest"});
+}
+function setSex(s){
+  sex = s;
+  try { localStorage.setItem("csb-sexo", s); } catch(e){}
+  $("#intro").hidden = true; $("#app").hidden = false; $("#fab").hidden = false;
+  document.querySelectorAll("[data-seg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.seg===s));
+  buildIndex(); renderTabs(); renderMain();
+}
+
+/* ================== BUSCADOR ================== */
+let INDEX = [];
+function buildIndex(){
+  INDEX = [];
+  ITEMS.forEach((it,i) => { if (visible(it)) INDEX.push({id:"i-"+i, tab:it[0], sec:it[1], title:it[2], text:it[3], pg:it[4]}); });
+  FALTAS.forEach(f => INDEX.push({id:"f-"+f[0], tab:"faltas", sec:"Falta "+GRAV[f[2]], title:"Falta n.º "+f[0], text:f[1]+(f[3]?". "+f[3]:""), pg:"66–70", g:f[2]}));
+  LADDER.forEach((l,i) => INDEX.push({id:"l-"+i, tab:"sanciones", sec:"Escalera", title:l[1], text:l[0]+" notificaciones. "+l[2], pg:l[3]}));
+  STEPS.forEach((s,i) => INDEX.push({id:"s-"+i, tab:"reclamar", sec:"Si te sancionan", title:"Paso "+(i+1), text:s[0], pg:s[1]}));
+  INDEX.push({id:"carta", tab:"reclamar", sec:"Si te sancionan", title:"Carta de reconsideración", text:"Plantilla para reclamar, apelar o pedir reconsideración de una sanción", pg:""});
+  INDEX.forEach(e => e.n = norm(e.title+" "+e.text+" "+e.sec));
+}
+const SYN = {
+  celular:["celular","telefono","dispositivo","reloj"], telefono:["celular","telefono"], pelo:["pelo","corte","tenido","cabello"], cabello:["pelo","corte"],
+  aro:["aro","piercing"], aros:["aro","piercing"], expulsion:["expuls","cancelacion"], expulsar:["expuls","cancelacion"], echar:["expuls","cancelacion"], echan:["expuls","cancelacion"],
+  reclamar:["reclam","reconsideracion","apel"], apelar:["apel","reclam","reconsideracion"], copiar:["copiar","plagi"], plagio:["copiar","plagi"],
+  falda:["jumper"], pantalon:["pantalon"], zapatilla:["zapat"], zapatillas:["zapat"], mochila:["mochila"], foto:["foto","imagen","video"], grabar:["grab","video"],
+  pelea:["pelea","agredir","enfrentamiento"], pegar:["agredir","pelea"], cimarra:["cimarra","fugarse"], fumar:["fumar","vape"], vape:["vape","fumar"], ia:["ia ","inteligencia"], chatgpt:["ia ","inteligencia"],
+  atraso:["tarde","atras"], tarde:["tarde","atras"], suspension:["suspens"], suspender:["suspens"], bullying:["bullying","acoso"], acoso:["acoso","bullying"]
+};
+const STOP = new Set("que el la los las de del en un una y o a me mi mis puedo puede se si es por para con lo le al como cuando cuanto cuantos cuantas hay tengo pasa tu te no ya mas son esta estoy eso esto qué cómo".split(" "));
+function terms(q){
+  return norm(q).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(w => w.length>1 && !STOP.has(w))
+    .map(w => SYN[w] || [w.length>5 ? w.slice(0, w.length-2) : w]);
+}
+function search(q, all){
+  const ts = terms(q); if (!ts.length) return [];
+  return INDEX.map(e => { let s = 0; ts.forEach(alts => { if (alts.some(a => e.n.includes(a))) s += 1; }); return [e,s]; })
+    .filter(([e,s]) => all ? s===ts.length : s>0).sort((a,b) => b[1]-a[1]).map(x => x[0]);
+}
+function highlight(text, q){
+  let out = esc(text); const words = norm(q).split(/\s+/).filter(w => w.length>2 && !STOP.has(w));
+  words.forEach(w => { const n = norm(out); const i = n.indexOf(w.length>5 ? w.slice(0,w.length-2) : w); if (i>=0){ const len = (w.length>5 ? w.length-2 : w.length); out = out.slice(0,i)+"<mark>"+out.slice(i,i+len)+"</mark>"+out.slice(i+len);} });
+  return out;
+}
+function renderResults(){
+  const q = $("#q").value.trim(), box = $("#results");
+  if (q.length < 2){ box.hidden = true; return; }
+  let r = search(q, true); if (!r.length) r = search(q, false);
+  r = r.slice(0, 8);
+  box.innerHTML = r.length ? r.map(e => `<button class="res" data-go="${e.id}" data-tab="${e.tab}"><small>${esc(TABS.find(t=>t.id===e.tab).label)} · ${esc(e.sec)}</small><span><b>${esc(e.title)}:</b> ${highlight(e.text, q)}</span></button>`).join("")
+    : `<div class="res-empty">No encontré nada con "${esc(q)}". Prueba otra palabra o pregúntale a la IA.</div>`;
+  box.hidden = false;
+}
+function go(id, t){
+  $("#results").hidden = true;
+  if (t==="faltas") gfilter = "todas";
+  setTab(t);
+  requestAnimationFrame(() => {
+    const el = document.getElementById(id); if (!el) return;
+    if (el.tagName==="DETAILS") el.open = true;
+    el.scrollIntoView({block:"center"});
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  });
+}
+
+/* ================== ASISTENTE ================== */
+let sample = null, aiMode = "local", turns = [], ctl = null, busy = false;
+const SUGG = ["¿Puedo usar aros?","¿Qué pasa si me pillan con el celular?","¿Me pueden expulsar por copiar?","¿Cuántos días tengo para reclamar?","¿Me pueden revisar la mochila?"];
+function kbText(){
+  const lines = [];
+  ITEMS.forEach(it => { if (visible(it)) lines.push(`[${TABS.find(t=>t.id===it[0]).label} › ${it[1]}] ${it[2]}: ${it[3]} (${/^[\d–]+$/.test(it[4])?"pág. "+it[4]:it[4]})`); });
+  FALTAS.forEach(f => lines.push(`[Falta n.º ${f[0]}] ${f[1]} → ${GRAV[f[2]]} (págs. 66–70)${f[3]?" Nota: "+f[3]:""}`));
+  LADDER.forEach(l => lines.push(`[Escalera] ${l[0]} notificaciones → ${l[1]}: ${l[2]} (pág. ${l[3]})`));
+  STEPS.forEach((s,i) => lines.push(`[Si te sancionan, paso ${i+1}] ${s[0]}${s[1]?" (pág. "+s[1]+")":""}`));
+  return lines.join("\n");
+}
+function rules(){
+  const who = sex==="h" ? "hombre" : sex==="m" ? "mujer" : "no indicado (muestra reglas de ambos sexos si aplica)";
+  return `Eres el asistente de "Mis Reglas en 7°", una guía del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, colegio particular pagado). Hablas con un estudiante de 7° básico (Tercer Ciclo). Sexo del estudiante: ${who}.
+
+Cómo responder:
+- Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo 120 palabras.
+- Usa SOLO la información de la lista de abajo. Cita la página entre paréntesis, por ejemplo (pág. 37), en cada dato.
+- Si la lista no lo cubre, di "El reglamento no lo contempla" y, solo si la lista trae una regla general que sirva, menciónala.
+- Si hay dos lecturas posibles, muestra ambas (la del colegio y la que te favorece).
+- Si algo tiene riesgo real de sanción, dilo claro. Si la situación es grave (amenazas, abuso, expulsión), recomienda hablar con un adulto de confianza o un abogado.
+- No inventes normas ni plazos. Usa viñetas con "- " cuando ayuden y **negrita** para lo clave.
+- Termina siempre con: "Esto es orientativo; para algo formal, consulta a un abogado."
+
+INFORMACIÓN DEL REGLAMENTO:
+${kbText()}`;
+}
+function md(t){
+  const lines = esc(t).split("\n"); let html = "", inList = false;
+  lines.forEach(l => {
+    const b = l.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\((p[áa]gs?\.\s?[\d–\- ,y]+)\)/g,'<span class="pg">$1</span>');
+    if (/^\s*[-•]\s+/.test(l)){ if(!inList){html+="<ul>";inList=true;} html += "<li>"+b.replace(/^\s*[-•]\s+/,"")+"</li>"; }
+    else { if(inList){html+="</ul>";inList=false;} if (l.trim()) html += "<p>"+b+"</p>"; }
+  });
+  if (inList) html += "</ul>";
+  return html;
+}
+function addMsg(role, html, cls=""){
+  const d = document.createElement("div"); d.className = `m ${role} ${cls}`; d.innerHTML = html;
+  $("#msgs").appendChild(d); $("#msgs").scrollTop = $("#msgs").scrollHeight; return d;
+}
+function welcome(){
+  $("#msgs").innerHTML = "";
+  addMsg("a", aiMode==="claude"
+    ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento y te respondo con la página exacta.</p>"
+    : "<p>Hola. En esta versión de la página respondo <b>buscando en el reglamento</b>. La IA completa funciona en el link de Claude.</p>");
+  const s = document.createElement("div"); s.className = "sugg";
+  s.innerHTML = SUGG.map(q => `<button type="button">${esc(q)}</button>`).join("");
+  s.addEventListener("click", e => { if (e.target.tagName==="BUTTON") ask(e.target.textContent); });
+  $("#msgs").appendChild(s);
+}
+function localAnswer(q){
+  let r = search(q, true); if (!r.length) r = search(q, false);
+  r = r.slice(0, 4);
+  if (!r.length) return "<p>No encontré eso en el reglamento. Puede que no lo contemple. Prueba con otras palabras o revisa la pestaña <b>Derechos › Lo que no dice</b>.</p>";
+  return "<p>Esto es lo que dice el reglamento:</p><ul>" + r.map(e => `<li><b>${esc(e.title)}:</b> ${esc(e.text)} ${pgTag(e.pg)}</li>`).join("") + "</ul><p>Esto es orientativo; para algo formal, consulta a un abogado.</p>";
+}
+async function ask(q){
+  q = q.trim(); if (!q || busy) return;
+  $("#msgs").querySelector(".sugg")?.remove();
+  addMsg("u", esc(q)); $("#ai-in").value = "";
+  if (aiMode !== "claude"){ addMsg("a", localAnswer(q)); return; }
+  busy = true; ctl = new AbortController();
+  $("#ai-send").textContent = "Detener"; $("#ai-send").type = "button";
+  const bubble = addMsg("a", "Pensando…", "think");
+  turns.push({role:"user", content:q});
+  if (turns.length > 10) turns = turns.slice(-10);
+  if (turns[0].role !== "user") turns.shift();
+  try {
+    const {text} = await sample([{role:"user", content:rules()}, ...turns], {
+      modelTier:"quick", cache:false, signal:ctl.signal,
+      onText: ({text}) => { bubble.classList.remove("think"); bubble.innerHTML = md(text); $("#msgs").scrollTop = $("#msgs").scrollHeight; }
+    });
+    turns.push({role:"assistant", content:text});
+  } catch(e){
+    bubble.classList.remove("think");
+    turns.pop();
+    if (e.code==="cancelled"){ bubble.innerHTML = e.text ? md(e.text) : "<p>Detenido.</p>"; }
+    else if (["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e.code)){
+      aiMode = "local"; setMode();
+      bubble.innerHTML = "<p>La IA no está disponible aquí, así que te respondo buscando en el reglamento:</p>" + localAnswer(q);
+    } else if (e.code==="rate_limited"){ bubble.innerHTML = (e.text?md(e.text):"") + "<p>Hiciste muchas preguntas seguidas. Espera un rato y vuelve a intentar.</p>"; }
+    else if (e.code==="session_expired"){ bubble.innerHTML = "<p>Tienes que volver a iniciar sesión en Claude.</p>"; }
+    else if (e.code==="refused"){ bubble.innerHTML = "<p>No puedo responder eso. Prueba preguntando de otra forma.</p>"; }
+    else { bubble.innerHTML = (e.text?md(e.text):"") + "<p>Se cortó la conexión. Vuelve a enviar tu pregunta.</p>"; }
+  } finally {
+    busy = false; $("#ai-send").textContent = "Enviar"; $("#ai-send").type = "submit";
+  }
+}
+function setMode(){
+  $("#mode").textContent = aiMode==="claude" ? "IA de Claude" : "Modo búsqueda";
+  $("#ai-note").textContent = aiMode==="claude"
+    ? "Usa tu cuenta de Claude. Responde con el reglamento del colegio y es orientativa: para algo formal, consulta a un abogado."
+    : "Responde con frases del reglamento, sin IA. Es orientativo: para algo formal, consulta a un abogado.";
+}
+async function initAI(){
+  try { if (window.claude && typeof window.claude.use === "function") sample = await window.claude.use("sample"); } catch(e){ sample = null; }
+  aiMode = sample ? "claude" : "local"; setMode();
+  if (!$("#ai").hidden) welcome();
+}
+
+/* ================== EVENTOS ================== */
+document.querySelectorAll("[data-sex]").forEach(b => b.addEventListener("click", () => setSex(b.dataset.sex)));
+document.querySelectorAll("[data-seg]").forEach(b => b.addEventListener("click", () => setSex(b.dataset.seg)));
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
+$("#main").addEventListener("click", e => {
+  const c = e.target.closest("[data-g]"); if (c){ gfilter = c.dataset.g; renderMain(); return; }
+  if (e.target.id==="copy"){
+    const done = () => { $("#copied").hidden = false; setTimeout(() => $("#copied").hidden = true, 2000); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($("#tpl")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try { navigator.clipboard.writeText(CARTA).then(done, fallback); } catch(err){ fallback(); }
+  }
+});
+$("#q").addEventListener("input", renderResults);
+$("#q").addEventListener("focus", renderResults);
+$("#q").addEventListener("keydown", e => { if (e.key==="Escape"){ $("#results").hidden = true; e.target.blur(); } if (e.key==="Enter"){ const f = $("#results .res"); if (f) go(f.dataset.go, f.dataset.tab); } });
+$("#results").addEventListener("click", e => { const b = e.target.closest(".res"); if (b) go(b.dataset.go, b.dataset.tab); });
+document.addEventListener("click", e => { if (!e.target.closest(".searchbox")) $("#results").hidden = true; });
+$("#fab").addEventListener("click", () => { $("#ai").hidden = false; $("#fab").hidden = true; if (!$("#msgs").children.length) welcome(); $("#ai-in").focus(); });
+$("#ai-close").addEventListener("click", () => { $("#ai").hidden = true; $("#fab").hidden = false; });
+$("#ai-form").addEventListener("submit", e => { e.preventDefault(); ask($("#ai-in").value); });
+$("#ai-send").addEventListener("click", e => { if (busy){ e.preventDefault(); ctl?.abort(); } });
+$("#ai-in").addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask($("#ai-in").value); } });
+
+try { const s = localStorage.getItem("csb-sexo"); if (s) setSex(s); } catch(e){}
+setMode(); initAI();
 </script>
+
 </html>
