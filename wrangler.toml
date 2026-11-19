@@ -1,0 +1,9 @@
+# Cloudflare Pages: proyecto vaciolegalcsb → https://vaciolegalcsb.pages.dev
+# La página está en docs/ (la misma carpeta que publica GitHub Pages) y la IA en functions/api/ia.js.
+name = "vaciolegalcsb"
+pages_build_output_dir = "docs"
+compatibility_date = "2026-11-01"
+
+# Workers AI (gratis hasta 10.000 neuronas al día para toda la cuenta)
+[ai]
+binding = "AI"

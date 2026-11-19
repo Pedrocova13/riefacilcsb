@@ -240,18 +240,8 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
   </div>
 </aside>
 
-<script>
-/* ================== DATOS ================== */
-const TABS = [
-  {id:"uniforme", label:"Uniforme"},
-  {id:"celular", label:"Celular e IA"},
-  {id:"faltas", label:"Faltas"},
-  {id:"sanciones", label:"Sanciones"},
-  {id:"reclamar", label:"Si te sancionan"},
-  {id:"derechos", label:"Derechos"}
-];
-// [tab, grupo, título, texto, página, sexo?, tono?]
-const ITEMS = [
+<script type="application/json" id="datos">
+{"ITEMS":[
   ["uniforme","Tu uniforme","Ropa","Pantalón gris escolar, camisa blanca, chaqueta azul marino con insignia a la izquierda y corbata del colegio.","37","h"],
   ["uniforme","Tu uniforme","Camisa","Siempre dentro del pantalón.","36","h"],
   ["uniforme","Tu uniforme","Zapatos","Zapatos o zapatillas completamente negras, de caña baja.","37","h"],
@@ -322,9 +312,8 @@ const ITEMS = [
   ["derechos","Claves legales","Tú también reclamas","Tú o tu apoderado pueden apelar una sanción.","88","","ok"],
   ["derechos","Claves legales","Presunción de inocencia","Negar una acusación no es mentir. El propio reglamento reconoce la presunción de inocencia.","113","","ok"],
   ["derechos","Claves legales","Colegio pagado","Aunque el colegio sea particular pagado, las reglas legales de expulsión igual se aplican (Dictamen 52 de 2020).","112"]
-];
-// [n, conducta, gravedad, advertencia?]
-const FALTAS = [
+],
+"FALTAS":[
   [1,"Interrumpir de vez en cuando la clase o actividades grupales","leve"],
   [2,"No obedecer instrucciones simples en actividades habituales","leve"],
   [3,"Dejar materiales en desorden o causar daños menores por descuido","leve"],
@@ -375,10 +364,8 @@ const FALTAS = [
   [48,"Hackear sistemas del colegio o acceder a información sensible","mgrave"],
   [49,"Organizar o incitar peleas entre compañeros","mgrave"],
   [50,"Publicar o difundir contenido sin consentimiento, o hacer ciberacoso","mgrave"]
-];
-const GRAV = {leve:"Leve", mod:"Moderada", grave:"Grave", mgrave:"Muy grave"};
-// [notificaciones, medida, detalle, pág, caliente?]
-const LADDER = [
+],
+"LADDER":[
   ["2","Primera corrección","Compromisos escritos con tu profesor jefe.","82"],
   ["3","Segunda corrección","Nuevos compromisos con tu profesor jefe.","82"],
   ["4","Corrección comunitaria","Compromisos con profesor jefe y apoderado.","82"],
@@ -386,16 +373,32 @@ const LADDER = [
   ["8","Precondicionalidad","Reclamas en 3 días hábiles.","74"],
   ["10","Condicionalidad","Reclamas en 4 días hábiles. No es automático pasar a cancelación: deben fundamentarlo.","74–75",1],
   ["12","Cancelación o expulsión","La ley te da 15 días hábiles para reclamar, no 5, y exige consultar al Consejo de Profesores.","75–76",1]
-];
-// [paso, pág?]
-const STEPS = [
+],
+"STEPS":[
   ["No firmes nada que no entiendas. Pide que te digan qué hecho te imputan y qué falta de la tabla sería.",""],
   ["Da tu versión antes de que decidan y pide ver las pruebas en tu contra.","87"],
   ["Pide la resolución por escrito, con hechos, pruebas y sanción. Están obligados a darla.","88"],
   ["Anota el plazo y reclama a tiempo: tú o tu apoderado pueden apelar. Si es cancelación o expulsión, pide los 15 días de la ley.","88"],
   ["Guarda evidencia: correos, capturas, testigos y fechas.",""],
   ["Si no responden o no respetan el proceso, tu apoderado puede denunciar en la Superintendencia de Educación (superintendenciaeducacion.cl).",""]
+]}
+</script>
+<script>
+/* ================== DATOS ================== */
+const TABS = [
+  {id:"uniforme", label:"Uniforme"},
+  {id:"celular", label:"Celular e IA"},
+  {id:"faltas", label:"Faltas"},
+  {id:"sanciones", label:"Sanciones"},
+  {id:"reclamar", label:"Si te sancionan"},
+  {id:"derechos", label:"Derechos"}
 ];
+// [tab, grupo, título, texto, página, sexo?, tono?]
+const {ITEMS, FALTAS, LADDER, STEPS} = JSON.parse(document.getElementById("datos").textContent);
+// [n, conducta, gravedad, advertencia?]
+const GRAV = {leve:"Leve", mod:"Moderada", grave:"Grave", mgrave:"Muy grave"};
+// [notificaciones, medida, detalle, pág, caliente?]
+// [paso, pág?]
 const CARTA = `Santiago, [FECHA]
 
 Señor Rector
@@ -464,7 +467,7 @@ function renderMain(){
     const c = rowsFor("derechos");
     h = head("Tus derechos","Sección 4.1 del reglamento y leyes que lo limitan") + `<div class="grid2">${c[0]||""}${c[1]||""}</div>${c[2]||""}`;
   }
-  m.innerHTML = `<div class="panel">${h}</div><footer><p>Basado en el Reglamento Interno del Colegio San Benito, versión 04, vigente desde el 9 de marzo de 2026.</p><p>Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.</p></footer>`;
+  m.innerHTML = `<div class="panel">${h}</div><footer><p>Guía no oficial, hecha por un estudiante. Basada en el Reglamento Interno del Colegio San Benito, versión 04, vigente desde el 9 de marzo de 2026.</p><p>Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.</p></footer>`;
 }
 const head = (t,s) => `<div class="panel-head"><h2>${esc(t)}</h2><p>${esc(s)}</p></div>`;
 
@@ -586,9 +589,9 @@ function addMsg(role, html, cls=""){
 }
 function welcome(){
   $("#msgs").innerHTML = "";
-  addMsg("a", aiMode==="claude"
+  addMsg("a", aiMode!=="local"
     ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento y te respondo con la página exacta.</p>"
-    : "<p>Hola. En esta versión de la página respondo <b>buscando en el reglamento</b>. La IA completa funciona en el link de Claude.</p>");
+    : "<p>Hola. Ahora respondo <b>buscando en el reglamento</b>, sin IA. La IA completa está en <b>vaciolegalcsb.pages.dev</b>.</p>");
   const s = document.createElement("div"); s.className = "sugg";
   s.innerHTML = SUGG.map(q => `<button type="button">${esc(q)}</button>`).join("");
   s.addEventListener("click", e => { if (e.target.tagName==="BUTTON") ask(e.target.textContent); });
@@ -604,7 +607,8 @@ async function ask(q){
   q = q.trim(); if (!q || busy) return;
   $("#msgs").querySelector(".sugg")?.remove();
   addMsg("u", esc(q)); $("#ai-in").value = "";
-  if (aiMode !== "claude"){ addMsg("a", localAnswer(q)); return; }
+  if (aiMode === "local"){ addMsg("a", localAnswer(q)); return; }
+  if (aiMode === "server") return askServer(q);
   busy = true; ctl = new AbortController();
   $("#ai-send").textContent = "Detener"; $("#ai-send").type = "button";
   const bubble = addMsg("a", "Pensando…", "think");
@@ -632,16 +636,56 @@ async function ask(q){
     busy = false; $("#ai-send").textContent = "Enviar"; $("#ai-send").type = "submit";
   }
 }
+// Servidor de IA en Cloudflare: en vaciolegalcsb.pages.dev es la misma página; desde GitHub Pages se llama al de Cloudflare.
+const API = /\.pages\.dev$/.test(location.hostname) || location.hostname === "localhost" ? "/api/ia"
+  : /\.github\.io$/.test(location.hostname) ? "https://vaciolegalcsb.pages.dev/api/ia" : null;
+async function askServer(q){
+  busy = true; ctl = new AbortController();
+  $("#ai-send").textContent = "Detener"; $("#ai-send").type = "button";
+  const bubble = addMsg("a", "Pensando…", "think");
+  turns.push({role:"user", content:q});
+  if (turns.length > 10) turns = turns.slice(-10);
+  while (turns.length && turns[0].role !== "user") turns.shift();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; ctl.abort(); }, 45000);
+  try {
+    const r = await fetch(API, {method:"POST", headers:{"content-type":"application/json"}, signal:ctl.signal, body:JSON.stringify({messages:turns, sex})});
+    const d = await r.json().catch(() => ({}));
+    bubble.classList.remove("think");
+    if (r.ok && d.text){ bubble.innerHTML = md(d.text); turns.push({role:"assistant", content:d.text}); }
+    else {
+      turns.pop();
+      const why = d.error==="limit" ? "Se acabaron las preguntas a la IA por hoy." : d.error==="rate" ? "Hiciste muchas preguntas seguidas; espera un minuto." : "La IA no respondió.";
+      bubble.innerHTML = `<p>${why} Mientras, te respondo buscando en el reglamento:</p>` + localAnswer(q);
+    }
+  } catch(e){
+    bubble.classList.remove("think"); turns.pop();
+    bubble.innerHTML = e.name==="AbortError" && !timedOut ? "<p>Detenido.</p>" + localAnswer(q) : "<p>No pude conectarme con la IA. Te respondo buscando en el reglamento:</p>" + localAnswer(q);
+  } finally {
+    clearTimeout(timer); busy = false; $("#ai-send").textContent = "Enviar"; $("#ai-send").type = "submit";
+    $("#msgs").scrollTop = $("#msgs").scrollHeight;
+  }
+}
 function setMode(){
-  $("#mode").textContent = aiMode==="claude" ? "IA de Claude" : "Modo búsqueda";
+  $("#mode").textContent = aiMode==="claude" ? "IA de Claude" : aiMode==="server" ? "IA" : "Modo búsqueda";
   $("#ai-note").textContent = aiMode==="claude"
     ? "Usa tu cuenta de Claude. Responde con el reglamento del colegio y es orientativa: para algo formal, consulta a un abogado."
+    : aiMode==="server"
+    ? "IA gratuita de Cloudflare. Responde con el reglamento del colegio y puede equivocarse: revisa la página citada. Para algo formal, consulta a un abogado."
     : "Responde con frases del reglamento, sin IA. Es orientativo: para algo formal, consulta a un abogado.";
 }
 async function initAI(){
   try { if (window.claude && typeof window.claude.use === "function") sample = await window.claude.use("sample"); } catch(e){ sample = null; }
-  aiMode = sample ? "claude" : "local"; setMode();
-  if (!$("#ai").hidden) welcome();
+  if (sample) aiMode = "claude";
+  else if (API){
+    try {
+      const c = new AbortController(); const t = setTimeout(() => c.abort(), 6000);
+      const r = await fetch(API, {signal:c.signal}); clearTimeout(t);
+      aiMode = r.ok && (await r.json()).ai ? "server" : "local";
+    } catch(e){ aiMode = "local"; }
+  } else aiMode = "local";
+  setMode();
+  if (!$("#ai").hidden && !turns.length) welcome();
 }
 
 /* ================== EVENTOS ================== */
