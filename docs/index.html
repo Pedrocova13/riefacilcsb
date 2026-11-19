@@ -102,14 +102,29 @@ main{padding-block:22px 110px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 @media (max-width:680px){.grid2{grid-template-columns:1fr}}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
-.card h3{font-size:.8rem;font-family:var(--f-body);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 14px 6px}
-.r{display:grid;grid-template-columns:minmax(0,8.5rem) minmax(0,1fr) auto;gap:4px 12px;align-items:baseline;padding:9px 14px;border-top:1px solid var(--line)}
-.card h3 + .r{border-top:0}
-.r .k{font-weight:700;font-size:.9rem}
-.r .t{min-width:0}
+.stack{display:grid;gap:10px}
+:root{interpolate-size:allow-keywords}
+details.card > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;font-family:var(--f-display);font-weight:700;font-size:1.04rem;-webkit-tap-highlight-color:transparent}
+details.card > summary::-webkit-details-marker{display:none}
+details.card > summary .cnt{margin-left:auto;font-family:var(--f-body);font-size:.78rem;font-weight:600;color:var(--muted);background:var(--soft);border-radius:999px;padding:2px 9px;white-space:nowrap}
+details.card > summary::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .25s}
+details.card[open] > summary::after{transform:translateY(2px) rotate(-135deg)}
+details.card[open] > summary{border-bottom:1px solid var(--line)}
+details.card::details-content{block-size:0;overflow:hidden;transition:block-size .28s ease, content-visibility .28s allow-discrete}
+details.card[open]::details-content{block-size:auto}
+.card > summary + *{border-top:0}
+.r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:start;padding:11px 16px;border-top:1px solid var(--line)}
+.r .k{font-weight:700;font-size:.92rem}
+.r .pg{grid-column:2;grid-row:1}
+.r .t{grid-column:1 / -1;min-width:0;font-size:.94rem;line-height:1.45}
+details.w{margin-top:6px}
+details.w > summary{list-style:none;cursor:pointer;display:inline-block;font-size:.78rem;font-weight:700;color:var(--grave);background:var(--grave-bg);border-radius:999px;padding:2px 10px}
+details.w > summary::-webkit-details-marker{display:none}
+details.w[open] > summary{border-radius:8px 8px 0 0}
+details.w p{font-size:.86rem;color:var(--ink);background:var(--grave-bg);border-radius:0 8px 8px 8px;padding:7px 10px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
 .r .k::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--line)}
 .r.ok .k::before{background:var(--leve)} .r.no .k::before{background:var(--mgrave)} .r.warn .k::before{background:var(--gold)}
-@media (max-width:520px){.r{grid-template-columns:minmax(0,1fr) auto}.r .t{grid-column:1 / -1;grid-row:2}}
 .flash{animation:flash 1.6s ease}
 @keyframes flash{0%,40%{background:var(--mark)}100%{background:transparent}}
 
@@ -121,7 +136,7 @@ main{padding-block:22px 110px}
 .chip b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chip[aria-pressed="true"] b{color:var(--bg)}
-.f{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 14px;border-top:1px solid var(--line)}
+.f{display:grid;grid-template-columns:1.8rem minmax(0,1fr);gap:8px;align-items:start;padding:11px 16px;border-top:1px solid var(--line);font-size:.94rem}
 .f:first-child{border-top:0}
 .f .n{font-family:var(--f-mono);font-size:.76rem;color:var(--muted);padding-top:2px;font-variant-numeric:tabular-nums}
 .f .w{display:block;font-size:.84rem;color:var(--grave);margin-top:2px}
@@ -434,38 +449,37 @@ function renderTabs(){
 function rowsFor(tabId){
   const groups = {};
   ITEMS.forEach((it,i) => { if (it[0]===tabId && visible(it)) (groups[it[1]] ||= []).push([it,i]); });
-  return Object.entries(groups).map(([g,list]) => `<div class="card"><h3>${esc(g)}</h3>${list.map(([it,i]) =>
-    `<div class="r ${it[6]||""}" id="i-${i}"><span class="k">${esc(it[2])}</span><span class="t">${esc(it[3])}</span>${pgTag(it[4])}</div>`).join("")}</div>`);
+  return Object.entries(groups).map(([g,list],n) => `<details class="card"${n===0?" open":""}><summary>${esc(g)}<span class="cnt">${list.length}</span></summary><div>${list.map(([it,i]) =>
+    `<div class="r ${it[6]||""}" id="i-${i}"><span class="k">${esc(it[2])}</span>${pgTag(it[4])}<span class="t">${esc(it[3])}</span></div>`).join("")}</div></details>`);
 }
 function renderMain(){
   const m = $("#main"); let h = "";
   if (tab==="uniforme"){
     const c = rowsFor("uniforme");
     h = head("Tu uniforme", sex==="h" ? "Uniforme de Secundaria para hombres" : sex==="m" ? "Uniforme de Secundaria para mujeres" : "Uniforme de Secundaria, hombres y mujeres")
-      + `<div class="grid2">${c[0]||""}${c[1]||""}</div><div class="grid2">${c.slice(2).join("")}</div>`;
+      + `<div class="stack">${c.join("")}</div>`;
   } else if (tab==="celular"){
     const c = rowsFor("celular");
-    h = head("Celular e IA","Secciones 6.4 y 6.6 del reglamento") + `<div class="grid2">${c.join("")}</div>`;
+    h = head("Celular e IA","Secciones 6.4 y 6.6 del reglamento") + `<div class="stack">${c.join("")}</div>`;
   } else if (tab==="faltas"){
     const counts = {leve:0,mod:0,grave:0,mgrave:0}; FALTAS.forEach(f => counts[f[2]]++);
-    const list = FALTAS.filter(f => gfilter==="todas" || f[2]===gfilter);
-    h = head("Las 50 faltas","Tabla de 7° básico a IV° medio · págs. 66–70")
-      + `<div class="dist" aria-hidden="true">${Object.keys(counts).map(k => `<span class="g-${k}" style="flex:${counts[k]};background:var(--${k})"></span>`).join("")}</div>`
-      + `<div class="legend" role="group" aria-label="Filtrar por gravedad"><button class="chip" data-g="todas" aria-pressed="${gfilter==="todas"}">Todas <b>50</b></button>${Object.keys(counts).map(k => `<button class="chip" data-g="${k}" aria-pressed="${gfilter===k}">${GRAV[k]} <b>${counts[k]}</b></button>`).join("")}</div>`
-      + `<div class="card">${list.map(f => `<div class="f" id="f-${f[0]}"><span class="n">${f[0]}</span><span>${esc(f[1])}${f[3]?`<span class="w">⚠ ${esc(f[3])}</span>`:""}</span><span class="pill g-${f[2]}">${GRAV[f[2]]}</span></div>`).join("")}</div>`
+    h = head("Las 50 faltas","Toca cada gravedad para ver sus faltas · págs. 66–70")
+      + `<div class="dist" aria-hidden="true">${Object.keys(counts).map(k => `<span style="flex:${counts[k]};background:var(--${k})"></span>`).join("")}</div>`
+      + `<div class="stack">${Object.keys(counts).map(k => `<details class="card" id="fg-${k}"><summary><span class="dot" style="background:var(--${k})"></span>${GRAV[k]}<span class="cnt">${counts[k]} faltas</span></summary><div>${FALTAS.filter(f => f[2]===k).map(f =>
+          `<div class="f" id="f-${f[0]}"><span class="n">${f[0]}</span><div>${esc(f[1])}${f[3]?`<details class="w"><summary>⚠ Ojo con esta</summary><p>${esc(f[3])}</p></details>`:""}</div></div>`).join("")}</div></details>`).join("")}</div>`
       + `<p class="pg" style="justify-self:start">La primera falta leve no se anota · pág. 57</p>`;
   } else if (tab==="sanciones"){
     const c = rowsFor("sanciones");
     h = head("La escalera de sanciones","Según cuántas notificaciones acumulas · pág. 82")
       + `<div class="ladder">${LADDER.map((l,i) => `<div class="rung${l[4]?" hot":""}" id="l-${i}"><span class="num">${l[0]}<small>notif.</small></span><b>${esc(l[1])}</b><p>${esc(l[2])} ${pgTag(l[3])}</p></div>`).join("")}</div>`
-      + `<div class="grid2">${c[0]||""}${c[1]||""}</div>${c[2]||""}`;
+      + `<div class="stack">${c.join("")}</div>`;
   } else if (tab==="reclamar"){
     h = head("Si te sancionan","Los plazos son días hábiles desde que te avisan por escrito")
       + `<div class="card"><ol class="steps">${STEPS.map((s,i) => `<li id="s-${i}"><span>${esc(s[0])}</span>${pgTag(s[1])}</li>`).join("")}</ol></div>`
       + `<details class="carta" id="carta"><summary>Carta de reconsideración lista para completar</summary><pre id="tpl">${esc(CARTA)}</pre><div class="carta-actions"><button class="btn" id="copy">Copiar carta</button><span class="ok-msg" id="copied" hidden>Copiada</span></div></details>`;
   } else if (tab==="derechos"){
     const c = rowsFor("derechos");
-    h = head("Tus derechos","Sección 4.1 del reglamento y leyes que lo limitan") + `<div class="grid2">${c[0]||""}${c[1]||""}</div>${c[2]||""}`;
+    h = head("Tus derechos","Sección 4.1 del reglamento y leyes que lo limitan") + `<div class="stack">${c.join("")}</div>`;
   }
   m.innerHTML = `<div class="panel">${h}</div><footer><p>Guía no oficial, hecha por un estudiante. Basada en el Reglamento Interno del Colegio San Benito, versión 04, vigente desde el 9 de marzo de 2026.</p><p>Esto es un análisis orientativo. Para acciones formales (recurso, demanda, amparo) consulta a un abogado.</p></footer>`;
 }
@@ -541,6 +555,8 @@ function go(id, t){
   requestAnimationFrame(() => {
     const el = document.getElementById(id); if (!el) return;
     if (el.tagName==="DETAILS") el.open = true;
+    for (let p = el.closest("details"); p; p = p.parentElement.closest("details")) p.open = true;
+    el.querySelectorAll("details.w").forEach(d => d.open = true);
     el.scrollIntoView({block:"center"});
     el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   });
