@@ -43,13 +43,31 @@ async function loadKB(context) {
   return KB;
 }
 const pg = p => /^[\d–]+$/.test(p) ? "pág. " + p : p;
-function kbText(kb, sex) {
+function kbText(kb, sex) { return kbLines(kb, sex).join("\n"); }
+function kbLines(kb, sex) {
   const L = [];
   kb.ITEMS.forEach(it => { if (!it[5] || sex === "ambos" || it[5] === sex) L.push(`[${TABS[it[0]]} › ${it[1]}] ${it[2]}: ${it[3]} (${pg(it[4])})`); });
   kb.FALTAS.forEach(f => L.push(`[Falta n.º ${f[0]}] ${f[1]} → ${GRAV[f[2]]} (págs. 66–70)${f[3] ? " Nota: " + f[3] : ""}`));
   kb.LADDER.forEach(l => L.push(`[Escalera de sanciones] ${l[0]} notificaciones → ${l[1]}: ${l[2]} (pág. ${l[3]})`));
   kb.STEPS.forEach((s, i) => L.push(`[Si te sancionan, paso ${i + 1}] ${s[0]}${s[1] ? " (pág. " + s[1] + ")" : ""}`));
-  return L.join("\n");
+  return L;
+}
+
+// ---- Revisión: una segunda pasada compara el borrador con el reglamento y lo corrige ----
+// Ve solo las reglas que el borrador cita (por página) más los derechos y pasos clave, para gastar poco.
+const REVIEW_SYS = `Eres un revisor muy estricto. Recibes INFORMACIÓN DEL REGLAMENTO, una PREGUNTA de un estudiante de 7° básico y un BORRADOR de respuesta. Devuelve el borrador corregido.
+Corrige solo esto:
+1. Cada dato debe decir exactamente lo que dice la información, con su página. Si un dato no está en la información o está mal, corrígelo o bórralo. No agregues datos que no estén en la información.
+2. No exageres: una regla vale solo para lo que dice (por ejemplo, "antes de cancelar o expulsar" no es "antes de cualquier sanción"). Di "la ley" solo si la información dice que es de la ley; si la información dice "discutible", no lo presentes como seguro.
+3. Revisa cada negación: que ninguna frase diga lo contrario de lo que quiso decir (por ejemplo, "no debió dejarte explicar" en vez de "debió dejarte explicar").
+4. Llama "derecho" solo a lo que la información presenta como derecho o garantía.
+5. Lo que el borrador cuenta que se ve en una foto, déjalo igual.
+Mantén el tono, el formato con "- " y **negrita**, y el largo (máximo 200 palabras). Debe terminar con: "Esto es orientativo; para algo formal, consulta a un abogado."
+Responde SOLO con la respuesta final corregida, sin explicar qué cambiaste.`;
+function reviewLines(kb, sex, draft) {
+  const cited = [...draft.matchAll(/p[áa]gs?\.\s*(\d+(?:\s*[–-]\s*\d+)?)/g)].flatMap(m => m[1].split(/\s*[–-]\s*/));
+  return kbLines(kb, sex).filter(l => /^\[(Derechos › Claves legales|Si te sancionan|Escalera)/.test(l)
+    || cited.some(p => new RegExp("p[áa]gs?\\. [\\d–]*?\\b" + p + "\\b").test(l)));
 }
 function system(kb, sex) {
   const who = sex === "h" ? "hombre" : sex === "m" ? "mujer" : "no indicado (si la regla cambia según el sexo, da ambas)";
@@ -110,8 +128,8 @@ export async function onRequestPost(context) {
   for (const M of [AI_MAIN, AI_BACKUP]) {
     try {
       const r = await env.AI.run(M.id, M === AI_MAIN
-        ? { messages: msgs, max_completion_tokens: 900, temperature: 0.3, chat_template_kwargs: { enable_thinking: false } }
-        : { messages: msgs, max_tokens: 900, temperature: 0.3 });
+        ? { messages: msgs, max_completion_tokens: 900, temperature: 0.1, chat_template_kwargs: { enable_thinking: false } }
+        : { messages: msgs, max_tokens: 900, temperature: 0.1 });
       text = cleanAI((r && (r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content))) || "");
       const u = (r && r.usage) || {};
       use.neu += neurons(M, u.prompt_tokens || Math.ceil(inChars / 3.2), u.completion_tokens || Math.ceil(text.length / 3.2));
@@ -123,5 +141,17 @@ export async function onRequestPost(context) {
     }
   }
   if (!text) return out(request, { error: "ai" }, 502);
-  return out(request, { text });
+  // segunda pasada: revisar el borrador contra el reglamento (si falla, queda el borrador)
+  let final = text;
+  try {
+    const info = reviewLines(kb, sex, text).join("\n");
+    const rmsg = [{ role: "system", content: REVIEW_SYS },
+      { role: "user", content: `INFORMACIÓN DEL REGLAMENTO:\n${info}\n\nPREGUNTA:\n${last.content}${img ? "\n(El estudiante mandó una foto.)" : ""}\n\nBORRADOR:\n${text}` }];
+    const r = await env.AI.run(AI_MAIN.id, { messages: rmsg, max_completion_tokens: 900, temperature: 0, chat_template_kwargs: { enable_thinking: false } });
+    const fixed = cleanAI((r && (r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content))) || "");
+    const u = (r && r.usage) || {};
+    use.neu += neurons(AI_MAIN, u.prompt_tokens || Math.ceil(rmsg[1].content.length / 3.2 + 300), u.completion_tokens || Math.ceil(fixed.length / 3.2));
+    if (fixed.length > 80 && /orientativo/.test(fixed)) final = fixed;
+  } catch {}
+  return out(request, { text: final });
 }
