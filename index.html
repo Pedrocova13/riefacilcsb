@@ -172,7 +172,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 .sugg button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:.84rem}
 .ai-foot{border-top:1px solid var(--line);padding:10px 12px;display:grid;gap:6px}
 .ai-form{display:flex;gap:8px}
-.ai-form textarea{flex:1;min-width:0;resize:none;height:44px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
+.ai-form textarea{flex:1;min-width:0;resize:none;height:48px;line-height:1.4;scrollbar-width:none;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:.95rem}
 .ai-form textarea:focus{outline:none;border-color:var(--navy-2)}
 .ai-form button{border:0;border-radius:12px;padding:0 16px;font-weight:700;background:var(--navy);color:var(--on-navy)}
 .ai-note{font-size:.74rem;color:var(--muted)}
@@ -489,29 +489,37 @@ function buildIndex(){
   LADDER.forEach((l,i) => INDEX.push({id:"l-"+i, tab:"sanciones", sec:"Escalera", title:l[1], text:l[0]+" notificaciones. "+l[2], pg:l[3]}));
   STEPS.forEach((s,i) => INDEX.push({id:"s-"+i, tab:"reclamar", sec:"Si te sancionan", title:"Paso "+(i+1), text:s[0], pg:s[1]}));
   INDEX.push({id:"carta", tab:"reclamar", sec:"Si te sancionan", title:"Carta de reconsideración", text:"Plantilla para reclamar, apelar o pedir reconsideración de una sanción", pg:""});
-  INDEX.forEach(e => e.n = norm(e.title+" "+e.text+" "+e.sec));
+  INDEX.forEach(e => e.n = " " + norm(e.title+" "+e.text+" "+e.sec).replace(/[^a-z0-9]+/g," "));
 }
 const SYN = {
   celular:["celular","telefono","dispositivo","reloj"], telefono:["celular","telefono"], pelo:["pelo","corte","tenido","cabello"], cabello:["pelo","corte"],
   aro:["aro","piercing"], aros:["aro","piercing"], expulsion:["expuls","cancelacion"], expulsar:["expuls","cancelacion"], echar:["expuls","cancelacion"], echan:["expuls","cancelacion"],
   reclamar:["reclam","reconsideracion","apel"], apelar:["apel","reclam","reconsideracion"], copiar:["copiar","plagi"], plagio:["copiar","plagi"],
   falda:["jumper"], pantalon:["pantalon"], zapatilla:["zapat"], zapatillas:["zapat"], mochila:["mochila"], foto:["foto","imagen","video"], grabar:["grab","video"],
-  pelea:["pelea","agredir","enfrentamiento"], pegar:["agredir","pelea"], cimarra:["cimarra","fugarse"], fumar:["fumar","vape"], vape:["vape","fumar"], ia:["ia ","inteligencia"], chatgpt:["ia ","inteligencia"],
+  pelea:["pelea","agredir","enfrentamiento"], pegar:["agredir","pelea"], cimarra:["cimarra","fugarse"], fumar:["fumar","vape"], vape:["vape","fumar"], ia:["ia","inteligencia"], chatgpt:["ia","inteligencia"],
   atraso:["tarde","atras"], tarde:["tarde","atras"], suspension:["suspens"], suspender:["suspens"], bullying:["bullying","acoso"], acoso:["acoso","bullying"]
 };
-const STOP = new Set("que el la los las de del en un una y o a me mi mis puedo puede se si es por para con lo le al como cuando cuanto cuantos cuantas hay tengo pasa tu te no ya mas son esta estoy eso esto qué cómo".split(" "));
+const STOP = new Set("que el la los las de del en un una y o a me mi mis puedo puede se si es por para con lo le al como cuando cuanto cuantos cuantas hay tengo pasa tu te no ya mas son esta estoy eso esto usar uso llevar puedes pueden dejan ser hacer".split(" "));
 function terms(q){
-  return norm(q).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(w => w.length>1 && !STOP.has(w))
+  return norm(q).replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w => w.length>1 && !STOP.has(w))
     .map(w => SYN[w] || [w.length>5 ? w.slice(0, w.length-2) : w]);
 }
 function search(q, all){
   const ts = terms(q); if (!ts.length) return [];
-  return INDEX.map(e => { let s = 0; ts.forEach(alts => { if (alts.some(a => e.n.includes(a))) s += 1; }); return [e,s]; })
+  return INDEX.map(e => { let s = 0; ts.forEach(alts => { if (alts.some(a => e.n.includes(" "+a))) s += 1; }); return [e,s]; })
     .filter(([e,s]) => all ? s===ts.length : s>0).sort((a,b) => b[1]-a[1]).map(x => x[0]);
 }
 function highlight(text, q){
   let out = esc(text); const words = norm(q).split(/\s+/).filter(w => w.length>2 && !STOP.has(w));
-  words.forEach(w => { const n = norm(out); const i = n.indexOf(w.length>5 ? w.slice(0,w.length-2) : w); if (i>=0){ const len = (w.length>5 ? w.length-2 : w.length); out = out.slice(0,i)+"<mark>"+out.slice(i,i+len)+"</mark>"+out.slice(i+len);} });
+  words.forEach(w => {
+    const n = norm(out);
+    const stem = w.length > 5 ? w.slice(0, w.length-2) : w;
+    const m = new RegExp("(^|[^a-z0-9])" + stem).exec(n);
+    if (!m) return;
+    const i = m.index + m[1].length;
+    let stop = i + stem.length; while (stop < n.length && /[a-z0-9]/.test(n[stop])) stop++;
+    out = out.slice(0,i)+"<mark>"+out.slice(i,stop)+"</mark>"+out.slice(stop);
+  });
   return out;
 }
 function renderResults(){
