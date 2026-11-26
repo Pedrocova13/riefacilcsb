@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>[hidden]{display:none!important}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
-<title>Mis Reglas en 7°</title>
+<title>RIE Fácil CSB</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,11 +35,14 @@
   --grave:#f5a46c; --grave-bg:#3f2410; --mgrave:#ff8b93; --mgrave-bg:#44191e;
   --mark:#5a4a12; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.5;margin:0}
 h1,h2,h3{font-family:var(--f-display);line-height:1.12;text-wrap:balance;margin:0}
 p{margin:0}
 button,input,textarea{font:inherit;color:inherit}
+button,a,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* En el teléfono, menos de 16px en un campo hace que el iPhone haga zoom al tocarlo */
+@media (max-width:760px){input,textarea,select{font-size:16px!important}}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .in{max-width:900px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -170,7 +173,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 .fab{position:fixed;right:calc(16px + env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;align-items:center;gap:9px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--navy);color:var(--on-navy);font-weight:700;box-shadow:var(--shadow)}
 .fab i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#16305e;font-style:normal;font-family:var(--f-display);font-weight:800;font-size:.8rem}
 .ai{position:fixed;z-index:50;right:calc(16px + env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));width:min(420px, calc(100vw - 32px));height:min(620px, calc(100vh - 32px));display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-@media (max-width:560px){.ai{left:0;right:0;bottom:0;width:auto;height:min(86vh, calc(100% - 40px));border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom, 0px);padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}}
+@media (max-width:560px){.ai{left:0;right:0;bottom:0;width:auto;height:min(86vh, calc(100% - 40px));height:min(86dvh, calc(100dvh - 40px));border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom, 0px);padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}}
 .ai-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--navy);color:var(--on-navy)}
 .ai-head b{font-family:var(--f-display);font-size:1.05rem}
 .mode{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.15);border-radius:999px;padding:2px 8px}
@@ -226,7 +229,7 @@ footer{margin-top:26px;color:var(--muted);font-size:.84rem;display:grid;gap:4px}
 <div id="app" hidden>
   <header class="top">
     <div class="in">
-      <div class="brand"><i>7°</i><div><h1>Mis Reglas en 7°</h1><p>Guía no oficial · Colegio San Benito · 7° básico</p></div></div>
+      <div class="brand"><i>7°</i><div><h1>RIE Fácil CSB</h1><p>Guía no oficial · Colegio San Benito · 7° básico</p></div></div>
       <div class="seg" role="group" aria-label="Mostrar reglas para">
         <button data-seg="h" aria-pressed="false">Hombre</button>
         <button data-seg="m" aria-pressed="false">Mujer</button>
@@ -588,7 +591,7 @@ function kbText(){
 }
 function rules(){
   const who = sex==="h" ? "hombre" : sex==="m" ? "mujer" : "no indicado (muestra reglas de ambos sexos si aplica)";
-  return `Eres el asistente de "Mis Reglas en 7°", una guía del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, colegio particular pagado). Hablas con un estudiante de 7° básico (Tercer Ciclo). Sexo del estudiante: ${who}.
+  return `Eres el asistente de "RIE Fácil CSB", una guía del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, colegio particular pagado). Hablas con un estudiante de 7° básico (Tercer Ciclo). Sexo del estudiante: ${who}.
 
 Cómo responder:
 - Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo 120 palabras.
@@ -622,7 +625,7 @@ function welcome(){
     ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento o cuéntame lo que te pasó, y te respondo con la página exacta.</p><p>También puedes mandarme una <b>foto</b> (tus zapatillas, tu corte, un aro…) con el botón de la cámara y te digo si se puede. Manda solo fotos tuyas o de tus cosas, nunca de otras personas. La foto no se guarda.</p>"
     : aiMode==="claude"
     ? "<p>Hola. Pregúntame lo que quieras sobre el reglamento y te respondo con la página exacta.</p>"
-    : "<p>Hola. Ahora respondo <b>buscando en el reglamento</b>, sin IA. La IA completa está en <b>vaciolegalcsb.pages.dev</b>.</p>");
+    : "<p>Hola. Ahora respondo <b>buscando en el reglamento</b>, sin IA. La IA completa está en <b>riefacilcsb.pages.dev</b>.</p>");
   const s = document.createElement("div"); s.className = "sugg";
   s.innerHTML = SUGG.map(q => `<button type="button">${esc(q)}</button>`).join("");
   s.addEventListener("click", e => { if (e.target.tagName==="BUTTON") ask(e.target.textContent); });
@@ -671,9 +674,9 @@ async function ask(q){
     busy = false; $("#ai-send").textContent = "Enviar"; $("#ai-send").type = "submit";
   }
 }
-// Servidor de IA en Cloudflare: en vaciolegalcsb.pages.dev es la misma página; desde GitHub Pages se llama al de Cloudflare.
+// Servidor de IA en Cloudflare: en riefacilcsb.pages.dev es la misma página; desde GitHub Pages se llama al de Cloudflare.
 const API = /\.pages\.dev$/.test(location.hostname) || location.hostname === "localhost" ? "/api/ia"
-  : /\.github\.io$/.test(location.hostname) ? "https://vaciolegalcsb.pages.dev/api/ia" : null;
+  : /\.github\.io$/.test(location.hostname) ? "https://riefacilcsb.pages.dev/api/ia" : null;
 // Fotos: se achican en el teléfono (máx. 1024 px, JPG) antes de mandarlas. No se guardan.
 let photo = null;
 function clearPhoto(){ photo = null; $("#ai-prev").hidden = true; $("#ai-prev-img").removeAttribute("src"); $("#ai-file").value = ""; }
@@ -758,7 +761,7 @@ $("#q").addEventListener("focus", renderResults);
 $("#q").addEventListener("keydown", e => { if (e.key==="Escape"){ $("#results").hidden = true; e.target.blur(); } if (e.key==="Enter"){ const f = $("#results .res"); if (f) go(f.dataset.go, f.dataset.tab); } });
 $("#results").addEventListener("click", e => { const b = e.target.closest(".res"); if (b) go(b.dataset.go, b.dataset.tab); });
 document.addEventListener("click", e => { if (!e.target.closest(".searchbox")) $("#results").hidden = true; });
-$("#fab").addEventListener("click", () => { $("#ai").hidden = false; $("#fab").hidden = true; if (!$("#msgs").children.length) welcome(); $("#ai-in").focus(); });
+$("#fab").addEventListener("click", () => { $("#ai").hidden = false; $("#fab").hidden = true; if (!$("#msgs").children.length) welcome(); if (matchMedia("(pointer:fine)").matches) $("#ai-in").focus(); });
 $("#ai-close").addEventListener("click", () => { $("#ai").hidden = true; $("#fab").hidden = false; });
 $("#ai-form").addEventListener("submit", e => { e.preventDefault(); ask($("#ai-in").value); });
 $("#ai-send").addEventListener("click", e => { if (busy){ e.preventDefault(); ctl?.abort(); } });

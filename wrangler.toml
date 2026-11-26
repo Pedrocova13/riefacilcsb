@@ -1,6 +1,6 @@
-# Cloudflare Pages: proyecto vaciolegalcsb → https://vaciolegalcsb.pages.dev
+# Cloudflare Pages: proyecto riefacilcsb → https://riefacilcsb.pages.dev
 # La página está en docs/ (la misma carpeta que publica GitHub Pages) y la IA en functions/api/ia.js.
-name = "vaciolegalcsb"
+name = "riefacilcsb"
 pages_build_output_dir = "docs"
 compatibility_date = "2026-11-01"
 

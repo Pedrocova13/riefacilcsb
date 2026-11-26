@@ -1,4 +1,4 @@
-// Asistente con IA de Vacío Legal CSB (/api/ia): Cloudflare Pages Functions + Workers AI (variable AI, en wrangler.toml).
+// Asistente con IA de RIE Fácil CSB (/api/ia): Cloudflare Pages Functions + Workers AI (variable AI, en wrangler.toml).
 // Responde solo con el reglamento que trae la propia página (bloque <script id="datos"> de docs/index.html).
 // Lo gratis de Workers AI son 10.000 «neuronas» al día para TODA la cuenta (también las usa Surf Maitencillo):
 // esta guía se pone un tope propio bajo para no comérselas.
@@ -108,7 +108,7 @@ function reviewLines(kb, sex, draft) {
 // Las instrucciones de casos y de fotos van solo cuando hacen falta (cada letra que se manda cuesta).
 function system(lines, sex, { img, isCase } = {}) {
   const who = sex === "h" ? "hombre" : sex === "m" ? "mujer" : "no indicado (si la regla cambia según el sexo, da ambas)";
-  return `Eres el asistente de "Vacío Legal CSB", guía no oficial del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, particular pagado). Hablas con un estudiante de 7° básico. Sexo: ${who}.
+  return `Eres el asistente de "RIE Fácil CSB", guía no oficial del Reglamento Interno 2026 del Colegio San Benito (Vitacura, Chile, particular pagado). Hablas con un estudiante de 7° básico. Sexo: ${who}.
 
 Cómo responder:
 - Español de Chile, simple y directo, como un hermano mayor que sabe del tema. Máximo ${isCase ? 200 : 110} palabras.${isCase ? `

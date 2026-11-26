@@ -1,12 +1,12 @@
-# Vacío Legal CSB
+# RIE Fácil CSB
 
 Guía interactiva y no oficial del Reglamento Interno 2026 del Colegio San Benito para estudiantes de 7° básico.
 Pregunta si eres hombre o mujer y muestra el uniforme, las reglas del celular y la IA, las 50 faltas,
 la escalera de sanciones, qué hacer si te sancionan y tus derechos, con la página del reglamento citada.
 Tiene un buscador y un asistente con IA que acepta casos y fotos ("¿esto se puede?"); las fotos no se guardan.
 
-- **Cloudflare Pages (con IA):** <https://vaciolegalcsb.pages.dev>
-- **GitHub Pages (copia):** <https://pedrocova13.github.io/vaciolegalcsb/>; su asistente usa la IA de Cloudflare.
+- **Cloudflare Pages (con IA):** <https://riefacilcsb.pages.dev>
+- **GitHub Pages (copia):** <https://pedrocova13.github.io/riefacilcsb/>; su asistente usa la IA de Cloudflare.
 
 ## Cómo está hecho
 
